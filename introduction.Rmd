@@ -25,6 +25,10 @@ knitr::opts_chunk$set(echo = FALSE)
 
 Quantifying gross primary production (GPP) is essential for understanding land-atmosphere carbon exchange (Kohler 2018), ecosystem function, and ecosystem responses to climate change (Guan et al., 2022; Brown et al., 2021; Myneni et al., 1995). GPP is the total amount of carbon fixation by plants through photosynthesis (Badgley et al., 2019). With recent advances in technology for remote sensing and more computational power available with lower costs (Gorelick et al., 2017), global mapping of photosynthesis is being done by more scientists (Ryu et al., 2019). Given that GPP cannot be directly estimated from satellite remote sensing techniques, the use of vegetation indices has been a widely used method to approximate and quantify GPP (Ryu et al., 2019). However, estimates remain with high uncertainties and validation efforts are required to characterize these and improve accuracy. (Anav et al., 2015; Brown et al 2021)
 
+```{r fig.cap = "Land-atmosphere carbon exchange", out.extra = "class=external", layout="l-body-outset"}
+knitr::include_graphics("img/experimental_3.png")
+```
+
 There are several methods to calculate GPP that can be grouped into two broad categories: in-situ measurements based and satellite data-driven (Guan et al., 2022; Xie et al., 2019). The Eddy Covariance technique (EC) has been the in-situ measurement method that has allowed scientists to measure directly the carbon, water, and energy fluxes between vegetation canopies and the atmosphere since before the 1990s (Baldochi et al.,  2001; Ryu et al., 2019). This method to measure terrestrial fluxes is the principal approach for quantifying the exchange of CO2 between the land and atmosphere  (Badgley et al., 2019; Tramontana et al., 2017).
 
 The second category of methods to estimate GPP is the satellite data-driven models. Unlike the EC methods, these are not spatially constrained but can have more uncertainties (Ryu et al., 2019; Wang et al., 2011). Satellite data-driven models can be classified into vegetation index models (VI), light use efficiency models (LUE), and process-based models (Xie et al., 2019). VI data is derived from optical sensors that are combined with climate variables to calculate GPP (Wu et al., 2011 ). LUE models are based on the concept of radiation conversion efficiency (Monteith 1972). Process-based models explain and predict carbon fluxes taking into consideration ecological processes (Liu et al., 1997).
@@ -42,6 +46,10 @@ The second category of methods to estimate GPP is the satellite data-driven mode
 
 Vegetation indices are a summary of satellite obtained spectral data (Myneni _et al.,_ 1995) that are used to derive ecosystem biophysical variables through statistical, physical, or hybrid methods. The statistical methods relate spectral data with specific variables of interest usually with some form of regression and physical methods that associate interactions between vegetation and incoming radiation (Fernández-Martínez _et al.,_ 2019)
 
+```{r fig.cap = "Factors affecting the fluxes", out.extra = "class=external", layout="l-body-outset"}
+knitr::include_graphics("img/experimental_2.png")
+```
+
 Given that indices are used as a proxy for photosynthetic capacity and these techniques
 are indirect methods to quantify GPP, an increase in uncertainties should be
 expected compared with in-situ methods to quantify GPP. Environmental stress 
@@ -51,6 +59,10 @@ impact on canopy structure or chlorophyll content for example (Pierrat _et al.,_
 If changes on photosynthesis occur and these indices are not able to 
 capture these changes, a mislead on the estimation of GPP and
 lose tracking of seasonal trends can occur.
+
+```{r fig.cap = "Comparison of GPP estimation techniques", out.extra = "class=external", layout="l-body-outset"}
+knitr::include_graphics("img/experimental.png")
+```
 
 ## Objectives and expected results
 
@@ -68,7 +80,7 @@ and sensors in-situ. A comparison of the GPP trends was done from 2013 to 2016
 What are the main drivers of GPP in a tropical dry forest?
 
 To answer this objective we obtained meteorological data from sensors located
-in-situ 
+in-situ to understand which of these have a bigger impact on the GPP trend.
 
 #### Expected results
 
@@ -78,19 +90,17 @@ in-situ
 <!-- answer a research question or test a hypothesis through exclusion of competing -->
 <!-- explanations. -->
 
-
-
-
-
-
-
+If GPP obtained from MODIS differ with GPP calculated with Eddy Covariance method
+we may attribute a portion of those differences to the lack of sensitivity to
+photosynthetic changes that occur without a major impact on canopy structure
+during the initial stage of an environmental stress. Trends for GPP over a year
+can be evaluated and expected to be driven by high values of Vapor pressure
+deficit (VPD) and soil water content (SWC)
 
 <!-- Visual Elements – In this section, you may use simplified, conceptual graphs or  -->
 <!-- diagrams to support your background narrative, or to illustrate what the  -->
 <!-- possible outcomes of your study might be. You can also add photos from your  -->
 <!-- research or potential applications as decoration. -->
-
-
 
 ## References
 

@@ -2105,6 +2105,23 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!-- Background & Rational – Describe the context of your research (background), why is it important or interesting -->
 <!-- (rationale). Do a minimal review of the literature with relevant references as a foot-note or in a reference section. -->
 <p>Quantifying gross primary production (GPP) is essential for understanding land-atmosphere carbon exchange (Kohler 2018), ecosystem function, and ecosystem responses to climate change (Guan et al., 2022; Brown et al., 2021; Myneni et al., 1995). GPP is the total amount of carbon fixation by plants through photosynthesis (Badgley et al., 2019). With recent advances in technology for remote sensing and more computational power available with lower costs (Gorelick et al., 2017), global mapping of photosynthesis is being done by more scientists (Ryu et al., 2019). Given that GPP cannot be directly estimated from satellite remote sensing techniques, the use of vegetation indices has been a widely used method to approximate and quantify GPP (Ryu et al., 2019). However, estimates remain with high uncertainties and validation efforts are required to characterize these and improve accuracy. (Anav et al., 2015; Brown et al 2021)</p>
+<div class="layout-chunk" data-layout="l-body-outset">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'>knitr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span><span class='op'>(</span><span class='st'>"img/experimental_3.png"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-1"></span>
+<img src="img/experimental_3.png" alt="Land-atmosphere carbon exchange" width="452" class=external />
+<p class="caption">
+Figure 1: Land-atmosphere carbon exchange
+</p>
+</div>
+</div>
 <p>There are several methods to calculate GPP that can be grouped into two broad categories: in-situ measurements based and satellite data-driven (Guan et al., 2022; Xie et al., 2019). The Eddy Covariance technique (EC) has been the in-situ measurement method that has allowed scientists to measure directly the carbon, water, and energy fluxes between vegetation canopies and the atmosphere since before the 1990s (Baldochi et al., 2001; Ryu et al., 2019). This method to measure terrestrial fluxes is the principal approach for quantifying the exchange of CO2 between the land and atmosphere (Badgley et al., 2019; Tramontana et al., 2017).</p>
 <p>The second category of methods to estimate GPP is the satellite data-driven models. Unlike the EC methods, these are not spatially constrained but can have more uncertainties (Ryu et al., 2019; Wang et al., 2011). Satellite data-driven models can be classified into vegetation index models (VI), light use efficiency models (LUE), and process-based models (Xie et al., 2019). VI data is derived from optical sensors that are combined with climate variables to calculate GPP (Wu et al., 2011 ). LUE models are based on the concept of radiation conversion efficiency (Monteith 1972). Process-based models explain and predict carbon fluxes taking into consideration ecological processes (Liu et al., 1997).</p>
 <!-- Research Objectives – State one or more research questions, applied objectives, -->
@@ -2117,21 +2134,56 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!-- those questions with your data!).  -->
 <h2 id="rational">Rational</h2>
 <p>Vegetation indices are a summary of satellite obtained spectral data (Myneni <em>et al.,</em> 1995) that are used to derive ecosystem biophysical variables through statistical, physical, or hybrid methods. The statistical methods relate spectral data with specific variables of interest usually with some form of regression and physical methods that associate interactions between vegetation and incoming radiation (Fernández-Martínez <em>et al.,</em> 2019)</p>
+<div class="layout-chunk" data-layout="l-body-outset">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'>knitr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span><span class='op'>(</span><span class='st'>"img/experimental_2.png"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-2"></span>
+<img src="img/experimental_2.png" alt="Factors affecting the fluxes" width="574" class=external />
+<p class="caption">
+Figure 2: Factors affecting the fluxes
+</p>
+</div>
+</div>
 <p>Given that indices are used as a proxy for photosynthetic capacity and these techniques are indirect methods to quantify GPP, an increase in uncertainties should be expected compared with in-situ methods to quantify GPP. Environmental stress factors can drive photosynthetic changes that often occur without having a major impact on canopy structure or chlorophyll content for example (Pierrat <em>et al.,</em> 2022)</p>
 <p>If changes on photosynthesis occur and these indices are not able to capture these changes, a mislead on the estimation of GPP and lose tracking of seasonal trends can occur.</p>
+<div class="layout-chunk" data-layout="l-body-outset">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'>knitr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span><span class='op'>(</span><span class='st'>"img/experimental.png"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-3"></span>
+<img src="img/experimental.png" alt="Comparison of GPP estimation techniques" width="476" class=external />
+<p class="caption">
+Figure 3: Comparison of GPP estimation techniques
+</p>
+</div>
+</div>
 <h2 id="objectives-and-expected-results">Objectives and expected results</h2>
 <h4 id="objective-1">Objective 1</h4>
 <p>How accurate is the GPP estimation obtained from MODIS compared with the GPP estimation done with in-situ sensors?</p>
 <p>To answer this objective we obtained the monthly estimates of GPP from MODIS Terra product and estimates made from data collected from the Eddy Covariance and sensors in-situ. A comparison of the GPP trends was done from 2013 to 2016</p>
 <h4 id="objective-2">Objective 2</h4>
 <p>What are the main drivers of GPP in a tropical dry forest?</p>
-<p>To answer this objective we obtained meteorological data from sensors located in-situ</p>
+<p>To answer this objective we obtained meteorological data from sensors located in-situ to understand which of these have a bigger impact on the GPP trend.</p>
 <h4 id="expected-results">Expected results</h4>
 <!-- Expected results – Describe the expected results and possible alternative  -->
 <!-- results of your study. Explain how different results would help you to decide  -->
 <!-- between different management options, or how the results would help you to  -->
 <!-- answer a research question or test a hypothesis through exclusion of competing -->
 <!-- explanations. -->
+<p>If GPP obtained from MODIS differ with GPP calculated with Eddy Covariance method we may attribute a portion of those differences to the lack of sensitivity to photosynthetic changes that occur without a major impact on canopy structure during the initial stage of an environmental stress. Trends for GPP over a year can be evaluated and expected to be driven by high values of Vapor pressure deficit (VPD) and soil water content (SWC)</p>
 <!-- Visual Elements – In this section, you may use simplified, conceptual graphs or  -->
 <!-- diagrams to support your background narrative, or to illustrate what the  -->
 <!-- possible outcomes of your study might be. You can also add photos from your  -->
