@@ -3,6 +3,11 @@ title: "Introduction"
 description: |
   Welcome to the website. I hope you enjoy it!
 site: distill::distill_website
+output:
+  distill::distill_article:
+    code_folding: true
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
@@ -13,4 +18,31 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```
 
-hola
+
+2. Intro (~500 words)
+
+Background & Rational – Describe the context of your research (background), why is it important or interesting
+(rationale). Do a minimal review of the literature with relevant references as a foot-note or in a reference section.
+
+Research Objectives – State one or more research questions, applied objectives,
+or scientific hypotheses in more detail than in the summary. Are there practical
+applications of your research? Do you want to decide between two or more 
+management options? Or do you have a true scientific hypotheses in a sense of 
+two or more competing explanations that you want to investigate? 
+Stating an interesting research question or applied objective is just as good 
+in this section (but be sure you can actually meet the objectives and answer 
+those questions with your data!). 
+
+
+Expected results – Describe the expected results and possible alternative 
+results of your study. Explain how different results would help you to decide 
+between different management options, or how the results would help you to 
+answer a research question or test a hypothesis through exclusion of competing
+explanations.
+
+
+Visual Elements – In this section, you may use simplified, conceptual graphs or 
+diagrams to support your background narrative, or to illustrate what the 
+possible outcomes of your study might be. You can also add photos from your 
+research or potential applications as decoration.
+

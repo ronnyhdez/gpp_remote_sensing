@@ -1,16 +1,326 @@
 ---
-title: "Data Exploration"
+title: "Exploratory Data Analysis (EDA)"
 description: |
-  Welcome to the website. I hope you enjoy it!
+  A description and graphical exploration of the datasets used in the research
 site: distill::distill_website
+output:
+  distill::distill_article:
+    code_folding: true
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
-# Learn more about creating websites with Distill at:
-# https://rstudio.github.io/distill/website.html
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(janitor)
+library(lubridate)
+library(visdat)
+library(corrplot)
+library(tidyr)
+library(rmarkdown)
+
+
+precipitation <- 
+  read_csv("data/hardvard_dataverse_tropidry/Daily_Precipitation_2013_to_2016.csv") %>% 
+  clean_names() %>% 
+  slice(-1) %>% 
+  mutate(date = ymd(date),
+         do_y = as.numeric(do_y),
+         precip = as.numeric(precip))
+
+biomet <- 
+  read_csv("data/hardvard_dataverse_tropidry/Micrometeorological_Biomet_Parameters_2013_to_2016.csv") %>% 
+  clean_names() %>% 
+  slice(-1) %>% 
+  mutate(date = ymd_hm(date)) %>% 
+  mutate(across(where(is.character), as.numeric))
+
+monthly_gpp <- 
+  read_csv("data/hardvard_dataverse_tropidry/Monthly_NEE_GPP_Reco_2013_to_2016.csv") %>% 
+  clean_names() %>% 
+  slice(-1) %>% 
+  unite(col = date, year, month, sep = "-") %>% 
+  mutate(date = paste0(date, "-1"),
+         date = ymd(date)) %>% 
+  select(-date_1, -date_2) %>% 
+  mutate(across(where(is.character), as.numeric))
+
+ndvi_moha <- 
+  readxl::read_xlsx("data/hardvard_dataverse_tropidry/final -NDVI- smoothed -complete.xlsx") %>% 
+  clean_names()
+
+modis_gpp <- 
+  read_csv("data/modis-gpp-sr/modis-sr-MYD17A2H-006-results.csv") %>% 
+  clean_names() %>% 
+  select(date, myd17a2h_006_gpp_500m, 
+         myd17a2h_006_psn_qc_500m_modland_description,
+         myd17a2h_006_psn_qc_500m_cloud_state_description,
+         myd17a2h_006_psn_qc_500m_scf_qc_description) %>% 
+  rename(gpp = myd17a2h_006_gpp_500m,
+         modland_description = myd17a2h_006_psn_qc_500m_modland_description,
+         cloud_state_description = myd17a2h_006_psn_qc_500m_cloud_state_description,
+         scf_qc_description = myd17a2h_006_psn_qc_500m_scf_qc_description)
+
+modis_indices <- 
+  read_csv("data/modis-indices-sr/modis-indices-sr-MOD13Q1-006-results.csv") %>% 
+  clean_names() %>% 
+  select(date, mod13q1_006_250m_16_days_evi, 
+         mod13q1_006_250m_16_days_ndvi, 
+         mod13q1_006_250m_16_days_vi_quality,
+         mod13q1_006_250m_16_days_pixel_reliability,
+         mod13q1_006_250m_16_days_pixel_reliability_modland_description) %>% 
+  rename(evi = mod13q1_006_250m_16_days_evi,
+         ndvi = mod13q1_006_250m_16_days_ndvi,
+         vi_quality = mod13q1_006_250m_16_days_vi_quality,
+         pixel_reliability = mod13q1_006_250m_16_days_pixel_reliability,
+         reliability_modland_description =
+           mod13q1_006_250m_16_days_pixel_reliability_modland_description)
+```
+
+## SRNP data exploration
+
+Santa Rosa National Park Environmental Super Site in Guanacaste, Costa Rica
+have several sensors to monitor environmental climate variables, radiation and
+fluxes.
+
+Given that variables such as NDVI and GPP can be calculate with instrumentation
+in the site, this ones will be included and name as `in-situ_variable_name` to
+differentiate them from the same variables obtained from the MODIS satellite
+images.
+
+
+
+ - Precipitation data
+ - Meteorological data
+ - Monthly Gross Primary Production (GPP)
+ - NDVI (Normalized Difference Vegetation Index)
+ 
+### Santa Rosa Data tables glimpse
+
+For Santa Rosa we have the following data sets:
+
+#### Precipitation data
+
+```{r}
+precipitation %>% 
+  slice(1:100) %>% 
+  paged_table()
+```
+
+#### Meteorological data
+
+```{r}
+biomet %>% 
+  slice(1:100) %>% 
+  paged_table()
+```
+
+#### GPP in-situ data
+
+```{r}
+monthly_gpp %>% 
+  slice(1:100) %>% 
+  paged_table()
+```
+
+#### NDVI in-situ data
+
+```{r}
+ndvi_moha %>% 
+  slice(1:100) %>% 
+  paged_table()
+```
+
+### Precipitation EDA
+
+```{r}
+precipitation %>% 
+  mutate(year_mon = zoo::as.yearmon(date)) %>% 
+  group_by(year_mon) %>% 
+  summarize(
+    total_precip = sum(precip, na.rm = TRUE)
+  ) %>% 
+  ggplot(aes(x = as.factor(year_mon), y = total_precip)) +
+  geom_bar(stat = "identity") +
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  labs(x = "Date", y = "Total precipitation per month (mm)")
+
+### Agrupando los meses
+precipitation %>%
+  mutate(year_mon = zoo::as.yearmon(date)) %>%
+  filter(year(date) < 2017) %>% 
+  group_by(year_mon) %>%
+  summarize(
+    total_precip = sum(precip, na.rm = TRUE)
+  ) %>%
+  mutate(year = year(year_mon),
+         month = month(year_mon, label = TRUE)) %>%
+  # mutate(year_mon = as.character(year_mon)) %>%
+  ggplot(aes(x = as.factor(month), y = total_precip, fill = as.factor(year))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme_light(base_size = 12) +
+  scale_y_continuous(breaks = seq(0, 450, by = 50)) +
+  scale_fill_viridis_d() +
+  labs(x = "Date", y = "Total precipitation per month (mm)",
+       fill = "Year")
+```
+
+### Environmental drivers
+
+```{r}
+biomet %>% 
+  mutate(year_mon = zoo::as.yearmon(date)) %>%
+  filter(vpd > 0) %>% 
+  ggplot(aes(x = as.factor(year_mon), y = vpd, fill = as.factor(year_mon))) +
+  stat_boxplot(geom = "errorbar", width = 0.25) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq(-10, 40, by = 5)) +
+  scale_fill_viridis_d() +
+  theme_light(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  guides(fill = "none") +
+  labs(x = "Date", y = "Vapor presurre deficit (hPa)")
 ```
 
 
-## Data exploration
+```{r}
+biomet %>% 
+  mutate(year_mon = zoo::as.yearmon(date)) %>%
+  # filter(vpd > 0) %>% 
+  ggplot(aes(x = as.factor(year_mon), y = tair, fill = as.factor(year_mon))) +
+  stat_boxplot(geom = "errorbar", width = 0.25) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq(15, 38, by = 2)) +
+  scale_fill_viridis_d() +
+  theme_light(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  guides(fill = "none") +
+  labs(x = "Date", y = "Air temperature (C)")
+```
+
+
+```{r}
+biomet %>% 
+  mutate(year_mon = zoo::as.yearmon(date)) %>%
+  filter(le > 0) %>%
+  ggplot(aes(x = as.factor(year_mon), y = le, fill = as.factor(year_mon))) +
+  stat_boxplot(geom = "errorbar", width = 0.25) +
+  geom_boxplot() +
+  # scale_y_continuous(breaks = seq(15, 38, by = 2)) +
+  scale_fill_viridis_d() +
+  theme_light(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  guides(fill = "none") +
+  labs(x = "Date", y = "Latent Heat (Wm-2)")
+```
+
+
+```{r}
+biomet %>% 
+  mutate(year_mon = zoo::as.yearmon(date)) %>%
+  # filter(le > 0) %>%
+  ggplot(aes(x = as.factor(year_mon), y = r_h, fill = as.factor(year_mon))) +
+  stat_boxplot(geom = "errorbar", width = 0.25) +
+  geom_boxplot() +
+  # scale_y_continuous(breaks = seq(15, 38, by = 2)) +
+  scale_fill_viridis_d() +
+  theme_light(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  guides(fill = "none") +
+  labs(x = "Date", y = "Relative Humidity (%)")
+```
+
+### NDVI
+
+```{r}
+ndvi_moha %>% 
+  mutate(date = ymd(date)) %>% 
+  filter(year(date) < 2017) %>% 
+  ggplot(aes(x = date, y = ndvi)) +
+  # geom_point(alpha = 0.5, color = "#FF3A1D", size = 3) +
+  geom_jitter(alpha = 0.5, color = "#FF3A1D", size = 2.5) +
+  theme_linedraw() +
+  scale_x_date(date_labels = "%b%Y", breaks = "months") +
+  theme(axis.text.x = element_text(angle = 90, h = 1))
+```
+
+### Monthly GPP
+
+```{r}
+monthly_gpp %>% 
+  ggplot(aes(x = date, y = average_gpp, group = 1)) +
+  geom_errorbar(aes(ymin = average_gpp - gpp_stdev,
+                    ymax = average_gpp + gpp_stdev),
+                colour = "#4D4D4D", width = .4) +
+  geom_line(linetype = 2) +
+  geom_point(color = "#FF3A1D", size = 3.5) +
+  theme_linedraw() +
+  scale_x_date(date_labels = "%b%Y", breaks = "months") +
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  labs(x = "Date", y = "GPP (mgm-2s-1)")
+```
+
+### Relation between in-situ NDVI and in-situ GPP
+
+```{r}
+ndvi_summarized <- ndvi_moha %>% 
+  mutate(year_mon = zoo::as.yearmon(date)) %>% 
+  group_by(year_mon) %>% 
+  summarize(
+    ndvi_mean = mean(ndvi, na.rm = TRUE),
+    ndvi_sd = sd(ndvi, na.rm = TRUE)
+  )
+
+gpp_ndvi <- monthly_gpp %>% 
+  mutate(year_mon = zoo::as.yearmon(date)) %>% 
+  inner_join(ndvi_summarized) 
+
+gpp_ndvi %>% 
+  ggplot(aes(x = average_gpp, y = ndvi_mean)) +
+  geom_point(color = "#FF3A1D", size = 3.5) +
+  theme_linedraw() +
+  geom_smooth(method = "lm")
+
+## Puedo sacar la regresión lineal entre gpp y ndvi y con esta sacar los
+## distintos valores de gpp para cada día por ejemplo.
+## http://www.sthda.com/english/articles/40-regression-analysis/165-linear-regression-essentials-in-r/
+model <- lm(average_gpp ~ ndvi_mean, data = gpp_ndvi)
+summary(model)
+```
+
+## MODIS data exploration
+
+MODIS data collected for the site have 3 variables of interest:
+
+ - NDVI
+ - EVI
+ - GPP
+
+### MODIS Data tables glimpse
+
+Data derived from satellite images for Santa Rosa is compose of following data
+sets:
+
+#### MODIS indices data
+
+```{r}
+modis_indices %>% 
+  slice(1:100) %>% 
+  paged_table()
+```
+
+#### MODIS GPP data
+
+```{r}
+modis_gpp %>% 
+  slice(1:100) %>% 
+  paged_table()
+```
+
+
+

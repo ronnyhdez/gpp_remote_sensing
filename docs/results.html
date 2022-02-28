@@ -109,7 +109,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description"]}},"value":[{"type":"character","attributes":{},"value":["About this site"]},{"type":"character","attributes":{},"value":["Some additional details about the website"]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","site","output"]}},"value":[{"type":"character","attributes":{},"value":["About this site"]},{"type":"character","attributes":{},"value":["Some additional details about the website\n"]},{"type":"character","attributes":{},"value":["distill::distill_website"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["code_folding","toc","toc_float"]}},"value":[{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[true]}]}]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2090,54 +2090,13 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
 <div class="d-article">
-<h2 id="precipitation">Precipitation</h2>
-<div class="layout-chunk" data-layout="l-body">
-<p><img src="results_files/figure-html5/unnamed-chunk-1-1.png" width="624" /><img src="results_files/figure-html5/unnamed-chunk-1-2.png" width="624" /></p>
-</div>
-<h2 id="environmental-drivers">Environmental drivers</h2>
-<div class="layout-chunk" data-layout="l-body">
-<p><img src="results_files/figure-html5/unnamed-chunk-2-1.png" width="624" /></p>
-</div>
-<div class="layout-chunk" data-layout="l-body">
-<p><img src="results_files/figure-html5/unnamed-chunk-3-1.png" width="624" /></p>
-</div>
-<div class="layout-chunk" data-layout="l-body">
-<p><img src="results_files/figure-html5/unnamed-chunk-4-1.png" width="624" /></p>
-</div>
-<div class="layout-chunk" data-layout="l-body">
-<p><img src="results_files/figure-html5/unnamed-chunk-5-1.png" width="624" /></p>
-</div>
-<h2 id="ndvi">NDVI</h2>
-<div class="layout-chunk" data-layout="l-body">
-<p><img src="results_files/figure-html5/unnamed-chunk-6-1.png" width="624" /></p>
-</div>
-<h2 id="monthly-gpp">Monthly GPP</h2>
-<div class="layout-chunk" data-layout="l-body">
-<p><img src="results_files/figure-html5/unnamed-chunk-7-1.png" width="624" /></p>
-</div>
-<h2 id="relation-between-ndvi-and-gpp">Relation between NDVI and GPP</h2>
-<div class="layout-chunk" data-layout="l-body">
-<p><img src="results_files/figure-html5/unnamed-chunk-8-1.png" width="624" /></p>
-<pre><code>
-Call:
-lm(formula = average_gpp ~ ndvi_mean, data = gpp_ndvi)
-
-Residuals:
-     Min       1Q   Median       3Q      Max 
--0.30947 -0.07002  0.02409  0.08486  0.41852 
-
-Coefficients:
-            Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  -1.1670     0.1662  -7.023 7.54e-09 ***
-ndvi_mean     2.1905     0.2231   9.818 5.78e-13 ***
----
-Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-
-Residual standard error: 0.1423 on 47 degrees of freedom
-Multiple R-squared:  0.6722,    Adjusted R-squared:  0.6652 
-F-statistic: 96.39 on 1 and 47 DF,  p-value: 5.779e-13</code></pre>
-</div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<ol start="5" type="1">
+<li>Results (including Discussion ~500 words)</li>
+</ol>
+<p>Results and Discussion – Be selective and only show a reasonable number of quality graphs that describe your results. Discuss each graph (or group of graphs) with a separate paragraph that makes references to the figures (or tables) that you are talking about. Tell people what they see in the graph, point out interesting relationships, explain how they can be biologically interpreted, and/or what the practical applications of these findings are.</p>
+<p>[For the draft submission, you are somewhat limited to complete this section. You may apply what you learned in Labs 1 through 5 where applicable and useful. Leave the rest for completion for the final submission. If you have some ideas which advanced multivariate methods you want to use here, you can briefly describe your plans to receive some feedback on that.]</p>
+<p>Conclusions, About, References – You may add these as additional pages, paragraphs or footnotes.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
