@@ -16,8 +16,6 @@ knitr::opts_chunk$set(echo = FALSE)
 library(leaflet)
 ```
 
-## Methods
-
 <!-- 3. Methods (~200 words) -->
 
 <!-- Data collection – Briefly describe your sampling procedure/experimental  -->
@@ -30,8 +28,9 @@ library(leaflet)
 
 Data collected comes from an Eddy covariance system and a meteorological station
 that has been monitoring the site since from 2013. Data processed for this research
-is available up to December 2016. During this period, El Niño-Southern Oscillation
-was experimented which reduced the precipitation for 2014 and 2015. (Castro _et al._ 2018)
+is available up to December 2016 from [environet data portal](https://www.enviro-net.org/).
+During this period, El Niño-Southern Oscillation was experimented which reduced 
+the precipitation for 2014 and 2015. (Castro _et al._ 2018)
 
 The second source of data was the satellite derived products from Moderate 
 Resolution Imaging Spectroradiometer (MODIS) (Didan, K. 2015) obtained using 
