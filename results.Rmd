@@ -2,13 +2,101 @@
 title: "About this site"
 description: |
   Some additional details about the website
+site: distill::distill_website
+output:
+  distill::distill_article:
+    code_folding: true
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
-# Learn more about creating websites with Distill at:
-# https://rstudio.github.io/distill/website.html
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(janitor)
+library(lubridate)
+library(visdat)
+library(corrplot)
+library(tidyr)
+library(rmarkdown)
+
+
+precipitation <- 
+  read_csv("data/hardvard_dataverse_tropidry/Daily_Precipitation_2013_to_2016.csv") %>% 
+  clean_names() %>% 
+  slice(-1) %>% 
+  mutate(date = ymd(date),
+         do_y = as.numeric(do_y),
+         precip = as.numeric(precip))
+
+biomet <- 
+  read_csv("data/hardvard_dataverse_tropidry/Micrometeorological_Biomet_Parameters_2013_to_2016.csv") %>% 
+  clean_names() %>% 
+  slice(-1) %>% 
+  mutate(date = ymd_hm(date)) %>% 
+  mutate(across(where(is.character), as.numeric))
+
+monthly_gpp <- 
+  read_csv("data/hardvard_dataverse_tropidry/Monthly_NEE_GPP_Reco_2013_to_2016.csv") %>% 
+  clean_names() %>% 
+  slice(-1) %>% 
+  unite(col = date, year, month, sep = "-") %>% 
+  mutate(date = paste0(date, "-1"),
+         date = ymd(date)) %>% 
+  select(-date_1, -date_2) %>% 
+  mutate(across(where(is.character), as.numeric))
+
+ndvi_moha <- 
+  readxl::read_xlsx("data/hardvard_dataverse_tropidry/final -NDVI- smoothed -complete.xlsx") %>% 
+  clean_names()
+
+modis_gpp <- 
+  read_csv("data/modis-gpp-sr/modis-sr-MYD17A2H-006-results.csv") %>% 
+  clean_names() %>% 
+  select(date, myd17a2h_006_gpp_500m, 
+         myd17a2h_006_psn_qc_500m_modland_description,
+         myd17a2h_006_psn_qc_500m_cloud_state_description,
+         myd17a2h_006_psn_qc_500m_scf_qc_description) %>% 
+  rename(gpp = myd17a2h_006_gpp_500m,
+         modland_description = myd17a2h_006_psn_qc_500m_modland_description,
+         cloud_state_description = myd17a2h_006_psn_qc_500m_cloud_state_description,
+         scf_qc_description = myd17a2h_006_psn_qc_500m_scf_qc_description)
+
+modis_indices <- 
+  read_csv("data/modis-indices-sr/modis-indices-sr-MOD13Q1-006-results.csv") %>% 
+  clean_names() %>% 
+  select(date, mod13q1_006_250m_16_days_evi, 
+         mod13q1_006_250m_16_days_ndvi, 
+         mod13q1_006_250m_16_days_vi_quality,
+         mod13q1_006_250m_16_days_pixel_reliability,
+         mod13q1_006_250m_16_days_pixel_reliability_modland_description) %>% 
+  rename(evi = mod13q1_006_250m_16_days_evi,
+         ndvi = mod13q1_006_250m_16_days_ndvi,
+         vi_quality = mod13q1_006_250m_16_days_vi_quality,
+         pixel_reliability = mod13q1_006_250m_16_days_pixel_reliability,
+         reliability_modland_description =
+           mod13q1_006_250m_16_days_pixel_reliability_modland_description)
 ```
+
+5. Results (including Discussion ~500 words)
+
+Results and Discussion – Be selective and only show a reasonable number of 
+quality graphs that describe your results. Discuss each graph (or group of 
+graphs) with a separate paragraph that makes references to the figures (or 
+tables) that you are talking about. Tell people what they see in the graph, 
+point out interesting relationships, explain how they can be biologically 
+interpreted, and/or what the practical applications of these findings are.
+
+[For the draft submission, you are somewhat limited to complete this section.
+You may apply what you learned in Labs 1 through 5 where applicable and useful.
+Leave the rest for completion for the final submission. If you have some ideas 
+which advanced multivariate methods you want to use here, you can briefly 
+describe your plans to receive some feedback on that.]
+
+Conclusions, About, References – You may add these as additional pages, 
+paragraphs or footnotes. 
 
 
