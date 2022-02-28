@@ -21,6 +21,9 @@ knitr::opts_chunk$set(echo = FALSE)
 knitr::include_graphics("img/IMG_20190908_204150_314.jpg")
 ```
 
+How reliable are satellite remote sensing products to estimate GPP in a 
+tropical dry forest?
+
 1. Home (~200 words)
 
 
