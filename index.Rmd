@@ -1,7 +1,7 @@
 ---
 title: "Assesing uncertainties related to satellite remote sensing indices to estimate Gross Primary Production"
 description: |
-  Welcome to the website. I hope you enjoy it!
+  How reliable are satellite remote sensing products to estimate GPP in a tropical dry forest?
 site: distill::distill_website
 output:
   distill::distill_article:
@@ -21,27 +21,24 @@ knitr::opts_chunk$set(echo = FALSE)
 knitr::include_graphics("img/IMG_20190908_204150_314.jpg")
 ```
 
-How reliable are satellite remote sensing products to estimate GPP in a 
-tropical dry forest?
-
-1. Home (~200 words)
+<!-- 1. Home (~200 words) -->
 
 
-Title – Aim for a short, descriptive and catchy title. This could be your main 
-research question, e.g. “Does clearcutting really affect tree density?” or your
-main finding: “Cearcutting reduces tree density to zero”. Avoid uninformative 
-titles such as “The effect of this … on that …”.
+<!-- Title – Aim for a short, descriptive and catchy title. This could be your main  -->
+<!-- research question, e.g. “Does clearcutting really affect tree density?” or your -->
+<!-- main finding: “Cearcutting reduces tree density to zero”. Avoid uninformative  -->
+<!-- titles such as “The effect of this … on that …”. -->
 
 
-Summary – In plain words, describe what you want to accomplish with your study. 
-Two or three sentences why your objective/question is important. Two or three 
-sentences about your research approach: summarize your sampling procedure/experimental design/analysis. Two or three sentences about your results: describe your main
-findings in a concise and quantitative way (I observed a 20% decrease of tree 
-density under the 1/5th harvesting treatment). End with your main conclusion.
+<!-- Summary – In plain words, describe what you want to accomplish with your study.  -->
+<!-- Two or three sentences why your objective/question is important. Two or three  -->
+<!-- sentences about your research approach: summarize your sampling procedure/experimental design/analysis. Two or three sentences about your results: describe your main -->
+<!-- findings in a concise and quantitative way (I observed a 20% decrease of tree  -->
+<!-- density under the 1/5th harvesting treatment). End with your main conclusion. -->
 
 
-Visual Elements – Use a photo or another visual element that represents your 
-research topic.
+<!-- Visual Elements – Use a photo or another visual element that represents your  -->
+<!-- research topic. -->
 
 ```{r fig.cap = "View from the Flux Tower in Santa Rosa National Park, Costa Rica", out.extra = "class=external", layout="l-body-outset"}
 knitr::include_graphics("img/IMG-20190908-WA0049.jpg")
