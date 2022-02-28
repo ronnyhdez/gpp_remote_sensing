@@ -63,7 +63,8 @@ modis_gpp <-
   rename(gpp = myd17a2h_006_gpp_500m,
          modland_description = myd17a2h_006_psn_qc_500m_modland_description,
          cloud_state_description = myd17a2h_006_psn_qc_500m_cloud_state_description,
-         scf_qc_description = myd17a2h_006_psn_qc_500m_scf_qc_description)
+         scf_qc_description = myd17a2h_006_psn_qc_500m_scf_qc_description) %>% 
+  mutate(gpp = gpp * 10)
 
 modis_indices <- 
   read_csv("data/modis-indices-sr/modis-indices-sr-MOD13Q1-006-results.csv") %>% 
@@ -92,13 +93,13 @@ in the site, this ones will be included and name as `in-situ_variable_name` to
 differentiate them from the same variables obtained from the MODIS satellite
 images.
 
+| Dataset | Frequency | Date range |
+| ------- | --------- | ---------- |
+| Precipitation | Daily values | `2013-05-15 00:00:00 UTC` to `2017-05-17 23:30:00 UTC`|
+| Meteorological data | Half hour values | `2013-05-15 00:00:00 UTC` to `2017-05-17 23:30:00 UTC` |
+| Monthly Gross Primary Production (GPP) | Monthly values | `2013-05-01` to `2017-05-01`|
+| NDVI (Normalized Difference Vegetation Index) | Daily values | `2013-02-23 UTC` to `2022-01-01 UTC`
 
-
- - Precipitation data
- - Meteorological data
- - Monthly Gross Primary Production (GPP)
- - NDVI (Normalized Difference Vegetation Index)
- 
 ### Santa Rosa Data tables glimpse
 
 For Santa Rosa we have the following data sets:
@@ -322,5 +323,34 @@ modis_gpp %>%
   paged_table()
 ```
 
+### GPP EDA
+
+```{r}
+modis_gpp %>% 
+  ggplot(aes(x = date, y = gpp, group = 1)) +
+  geom_line(linetype = 2) +
+  geom_point(color = "#FF3A1D", size = 3.5) +
+  theme_linedraw() +
+  scale_x_date(date_labels = "%b%Y", breaks = "months") +
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  labs(x = "Date", y = "GPP (mgm-2s-1)")
+```
+
+### NDVI EDA
+
+```{r}
+modis_indices %>% 
+  filter(reliability_modland_description !=
+           "Marginal data, Useful, but look at other QA information") %>% 
+  mutate(date = ymd(date)) %>% 
+  filter(ndvi > 0.2) %>% 
+  ggplot(aes(x = date, y = ndvi)) +
+  geom_jitter(alpha = 0.7, color = "#FF3A1D", size = 3) +
+  geom_line(linetype = 2) +
+  theme_linedraw() +
+  scale_x_date(date_labels = "%b%Y", breaks = "months") +
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  labs(x = "Date", y = "NDVI")
+```
 
 

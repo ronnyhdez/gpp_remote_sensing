@@ -1,7 +1,7 @@
 ---
 title: "Introduction"
 description: |
-  Welcome to the website. I hope you enjoy it!
+  Why is important to estimate GPP in a Tropical Dry Forest?
 site: distill::distill_website
 output:
   distill::distill_article:
@@ -18,31 +18,52 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```
 
+## Gross Primary Production estimation
 
-2. Intro (~500 words)
+<!-- Background & Rational – Describe the context of your research (background), why is it important or interesting -->
+<!-- (rationale). Do a minimal review of the literature with relevant references as a foot-note or in a reference section. -->
 
-Background & Rational – Describe the context of your research (background), why is it important or interesting
-(rationale). Do a minimal review of the literature with relevant references as a foot-note or in a reference section.
+Quantifying gross primary production (GPP) is essential for understanding land-atmosphere carbon exchange (Kohler 2018), ecosystem function, and ecosystem responses to climate change (Guan et al., 2022; Brown et al., 2021; Myneni et al., 1995). GPP is the total amount of carbon fixation by plants through photosynthesis (Badgley et al., 2019). With recent advances in technology for remote sensing and more computational power available with lower costs (Gorelick et al., 2017), global mapping of photosynthesis is being done by more scientists (Ryu et al., 2019). Given that GPP cannot be directly estimated from satellite remote sensing techniques, the use of vegetation indices has been a widely used method to approximate and quantify GPP (Ryu et al., 2019). However, estimates remain with high uncertainties and validation efforts are required to characterize these and improve accuracy. (Anav et al., 2015; Brown et al 2021)
 
-Research Objectives – State one or more research questions, applied objectives,
-or scientific hypotheses in more detail than in the summary. Are there practical
-applications of your research? Do you want to decide between two or more 
-management options? Or do you have a true scientific hypotheses in a sense of 
-two or more competing explanations that you want to investigate? 
-Stating an interesting research question or applied objective is just as good 
-in this section (but be sure you can actually meet the objectives and answer 
-those questions with your data!). 
+There are several methods to calculate GPP that can be grouped into two broad categories: in-situ measurements based and satellite data-driven (Guan et al., 2022; Xie et al., 2019). The Eddy Covariance technique (EC) has been the in-situ measurement method that has allowed scientists to measure directly the carbon, water, and energy fluxes between vegetation canopies and the atmosphere since before the 1990s (Baldochi et al.,  2001; Ryu et al., 2019). This method to measure terrestrial fluxes is the principal approach for quantifying the exchange of CO2 between the land and atmosphere  (Badgley et al., 2019; Tramontana et al., 2017).
 
+The second category of methods to estimate GPP is the satellite data-driven models. Unlike the EC methods, these are not spatially constrained but can have more uncertainties (Ryu et al., 2019; Wang et al., 2011). Satellite data-driven models can be classified into vegetation index models (VI), light use efficiency models (LUE), and process-based models (Xie et al., 2019). VI data is derived from optical sensors that are combined with climate variables to calculate GPP (Wu et al., 2011 ). LUE models are based on the concept of radiation conversion efficiency (Monteith 1972). Process-based models explain and predict carbon fluxes taking into consideration ecological processes (Liu et al., 1997).
 
-Expected results – Describe the expected results and possible alternative 
-results of your study. Explain how different results would help you to decide 
-between different management options, or how the results would help you to 
-answer a research question or test a hypothesis through exclusion of competing
-explanations.
+<!-- Research Objectives – State one or more research questions, applied objectives, -->
+<!-- or scientific hypotheses in more detail than in the summary. Are there practical -->
+<!-- applications of your research? Do you want to decide between two or more  -->
+<!-- management options? Or do you have a true scientific hypotheses in a sense of  -->
+<!-- two or more competing explanations that you want to investigate?  -->
+<!-- Stating an interesting research question or applied objective is just as good  -->
+<!-- in this section (but be sure you can actually meet the objectives and answer  -->
+<!-- those questions with your data!).  -->
 
 
-Visual Elements – In this section, you may use simplified, conceptual graphs or 
-diagrams to support your background narrative, or to illustrate what the 
-possible outcomes of your study might be. You can also add photos from your 
-research or potential applications as decoration.
+
+
+
+
+
+
+
+
+
+
+<!-- Expected results – Describe the expected results and possible alternative  -->
+<!-- results of your study. Explain how different results would help you to decide  -->
+<!-- between different management options, or how the results would help you to  -->
+<!-- answer a research question or test a hypothesis through exclusion of competing -->
+<!-- explanations. -->
+
+
+
+
+
+
+
+
+<!-- Visual Elements – In this section, you may use simplified, conceptual graphs or  -->
+<!-- diagrams to support your background narrative, or to illustrate what the  -->
+<!-- possible outcomes of your study might be. You can also add photos from your  -->
+<!-- research or potential applications as decoration. -->
 

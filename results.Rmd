@@ -1,7 +1,7 @@
 ---
-title: "About this site"
+title: "Results and conclussions"
 description: |
-  Some additional details about the website
+  MODIS products can understimate GPP in Santa Rosa National Park Tropical Dry Forest
 site: distill::distill_website
 output:
   distill::distill_article:
@@ -63,7 +63,8 @@ modis_gpp <-
   rename(gpp = myd17a2h_006_gpp_500m,
          modland_description = myd17a2h_006_psn_qc_500m_modland_description,
          cloud_state_description = myd17a2h_006_psn_qc_500m_cloud_state_description,
-         scf_qc_description = myd17a2h_006_psn_qc_500m_scf_qc_description)
+         scf_qc_description = myd17a2h_006_psn_qc_500m_scf_qc_description) %>% 
+  mutate(gpp = gpp * 10)
 
 modis_indices <- 
   read_csv("data/modis-indices-sr/modis-indices-sr-MOD13Q1-006-results.csv") %>% 
@@ -81,22 +82,56 @@ modis_indices <-
            mod13q1_006_250m_16_days_pixel_reliability_modland_description)
 ```
 
-5. Results (including Discussion ~500 words)
+<!-- 5. Results (including Discussion ~500 words) -->
 
-Results and Discussion – Be selective and only show a reasonable number of 
-quality graphs that describe your results. Discuss each graph (or group of 
-graphs) with a separate paragraph that makes references to the figures (or 
-tables) that you are talking about. Tell people what they see in the graph, 
-point out interesting relationships, explain how they can be biologically 
-interpreted, and/or what the practical applications of these findings are.
+<!-- Results and Discussion – Be selective and only show a reasonable number of  -->
+<!-- quality graphs that describe your results. Discuss each graph (or group of  -->
+<!-- graphs) with a separate paragraph that makes references to the figures (or  -->
+<!-- tables) that you are talking about. Tell people what they see in the graph,  -->
+<!-- point out interesting relationships, explain how they can be biologically  -->
+<!-- interpreted, and/or what the practical applications of these findings are. -->
 
-[For the draft submission, you are somewhat limited to complete this section.
-You may apply what you learned in Labs 1 through 5 where applicable and useful.
-Leave the rest for completion for the final submission. If you have some ideas 
-which advanced multivariate methods you want to use here, you can briefly 
-describe your plans to receive some feedback on that.]
+<!-- [For the draft submission, you are somewhat limited to complete this section. -->
+<!-- You may apply what you learned in Labs 1 through 5 where applicable and useful. -->
+<!-- Leave the rest for completion for the final submission. If you have some ideas  -->
+<!-- which advanced multivariate methods you want to use here, you can briefly  -->
+<!-- describe your plans to receive some feedback on that.] -->
 
-Conclusions, About, References – You may add these as additional pages, 
-paragraphs or footnotes. 
+<!-- Conclusions, About, References – You may add these as additional pages,  -->
+<!-- paragraphs or footnotes.  -->
 
+## Results
+
+
+## Conclusions
+
+
+```{r}
+# Plot with both GPP's
+rec_monthly_gpp <- monthly_gpp %>% 
+  select(date, average_gpp) %>% 
+  rename(gpp = average_gpp) %>% 
+  mutate(origin = "in_situ")
+
+rec_modis_gpp <- modis_gpp %>% 
+  select(date, gpp) %>% 
+  mutate(date = floor_date(date, "month")) %>% 
+  group_by(date) %>% 
+  summarise(
+    gpp = mean(gpp, na.rm = TRUE)
+  ) %>% 
+  mutate(origin = "modis")
+
+rec_both <- bind_rows(rec_monthly_gpp, rec_modis_gpp)
+
+rec_both %>% 
+  ggplot(aes(x = date, y = gpp, group = origin)) +
+  geom_line(aes(color = origin)) +
+  theme_linedraw() +
+  scale_x_date(date_labels = "%b%Y", breaks = "months") +
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  labs(x = "Date", y = "GPP (mgm-2s-1)", color = "Origin of GPP values")
+```
+
+## References
 
