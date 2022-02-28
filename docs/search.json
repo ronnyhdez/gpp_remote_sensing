@@ -1,0 +1,45 @@
+{
+  "articles": [
+    {
+      "path": "eda.html",
+      "title": "Data Exploration",
+      "description": "Welcome to the website. I hope you enjoy it!\n",
+      "author": [],
+      "contents": "\nData exploration\n\n\n\n",
+      "last_modified": "2022-02-27T20:34:20-07:00"
+    },
+    {
+      "path": "index.html",
+      "title": "My Website",
+      "description": "Welcome to the website. I hope you enjoy it!\n",
+      "author": [],
+      "contents": "\n\n\n\nHome (~200 words) Title – Aim for a short, descriptive and catchy title. This could be your main research question, e.g. “Does clearcutting really affect tree density?” or your main finding: “Cearcutting reduces tree density to zero”. Avoid uninformative titles such as “The effect of this … on that …”. Summary – In plain words, describe what you want to accomplish with your study. Two or three sentences why your objective/question is important. Two or three sentences about your research approach: summarize your sampling procedure/experimental design/analysis. Two or three sentences about your results: describe your main findings in a concise and quantitative way (I observed a 20% decrease of tree density under the 1/5th harvesting treatment). End with your main conclusion. Visual Elements – Use a photo or another visual element that represents your research topic.\n\n\n\n\n",
+      "last_modified": "2022-02-27T20:34:20-07:00"
+    },
+    {
+      "path": "introduction.html",
+      "title": "Introduction",
+      "description": "Welcome to the website. I hope you enjoy it!\n",
+      "author": [],
+      "contents": "\nhola\n\n\n\n",
+      "last_modified": "2022-02-27T20:34:21-07:00"
+    },
+    {
+      "path": "methods.html",
+      "title": "Methods",
+      "description": "Welcome to the website. I hope you enjoy it!\n",
+      "author": [],
+      "contents": "\nMethods remote sensing\n\n\n\n",
+      "last_modified": "2022-02-27T20:34:21-07:00"
+    },
+    {
+      "path": "results.html",
+      "title": "About this site",
+      "description": "Some additional details about the website",
+      "author": [],
+      "contents": "\nPrecipitation\n\n\n\nEnvironmental drivers\n\n\n\n\n\n\n\n\n\n\n\n\nNDVI\n\n\n\nMonthly GPP\n\n\n\nRelation between NDVI and GPP\n\n\n\nCall:\nlm(formula = average_gpp ~ ndvi_mean, data = gpp_ndvi)\n\nResiduals:\n     Min       1Q   Median       3Q      Max \n-0.30947 -0.07002  0.02409  0.08486  0.41852 \n\nCoefficients:\n            Estimate Std. Error t value Pr(>|t|)    \n(Intercept)  -1.1670     0.1662  -7.023 7.54e-09 ***\nndvi_mean     2.1905     0.2231   9.818 5.78e-13 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.1423 on 47 degrees of freedom\nMultiple R-squared:  0.6722,    Adjusted R-squared:  0.6652 \nF-statistic: 96.39 on 1 and 47 DF,  p-value: 5.779e-13\n\n\n\n\n",
+      "last_modified": "2022-02-27T20:34:39-07:00"
+    }
+  ],
+  "collections": []
+}
