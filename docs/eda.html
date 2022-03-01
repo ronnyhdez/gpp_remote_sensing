@@ -2252,7 +2252,14 @@ Show code
 </code></pre>
 </div>
 </details>
-<img src="eda_files/figure-html5/unnamed-chunk-5-1.png" width="624" />
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-5"></span>
+<img src="eda_files/figure-html5/unnamed-chunk-5-1.png" alt="Total precipitation (mm) for Santa Rosa National Park. Year 2015 had the lowest values of precicipitation" width="624" />
+<p class="caption">
+Figure 1: Total precipitation (mm) for Santa Rosa National Park. Year 2015 had the lowest values of precicipitation
+</p>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
@@ -2279,7 +2286,12 @@ Show code
 </code></pre>
 </div>
 </details>
-<p><img src="eda_files/figure-html5/unnamed-chunk-5-2.png" width="624" /></p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-6"></span>
+<img src="eda_files/figure-html5/unnamed-chunk-6-1.png" alt="Total precipitation (mm) arrange per month for comparison per each year. Patterns for 2014 and 2015 as the months with less precipitation are more evident" width="624" />
+<p class="caption">
+Figure 2: Total precipitation (mm) arrange per month for comparison per each year. Patterns for 2014 and 2015 as the months with less precipitation are more evident
+</p>
+</div>
 </div>
 <h3 id="environmental-drivers">Environmental drivers</h3>
 <div class="layout-chunk" data-layout="l-body">
@@ -2303,7 +2315,12 @@ Show code
 </code></pre>
 </div>
 </details>
-<p><img src="eda_files/figure-html5/unnamed-chunk-6-1.png" width="624" /></p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-7"></span>
+<img src="eda_files/figure-html5/unnamed-chunk-7-1.png" alt="Seasonal pattern of VPD (hPa). Months asociated with lower precipitation rates have the highest values of VPD" width="624" />
+<p class="caption">
+Figure 3: Seasonal pattern of VPD (hPa). Months asociated with lower precipitation rates have the highest values of VPD
+</p>
+</div>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -2326,7 +2343,7 @@ Show code
 </code></pre>
 </div>
 </details>
-<p><img src="eda_files/figure-html5/unnamed-chunk-7-1.png" width="624" /></p>
+<p><img src="eda_files/figure-html5/unnamed-chunk-8-1.png" width="624" /></p>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -2349,7 +2366,7 @@ Show code
 </code></pre>
 </div>
 </details>
-<p><img src="eda_files/figure-html5/unnamed-chunk-8-1.png" width="624" /></p>
+<p><img src="eda_files/figure-html5/unnamed-chunk-9-1.png" width="624" /></p>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -2372,7 +2389,7 @@ Show code
 </code></pre>
 </div>
 </details>
-<p><img src="eda_files/figure-html5/unnamed-chunk-9-1.png" width="624" /></p>
+<p><img src="eda_files/figure-html5/unnamed-chunk-10-1.png" width="624" /></p>
 </div>
 <h3 id="ndvi">NDVI</h3>
 <div class="layout-chunk" data-layout="l-body">
@@ -2393,7 +2410,7 @@ Show code
 </code></pre>
 </div>
 </details>
-<p><img src="eda_files/figure-html5/unnamed-chunk-10-1.png" width="624" /></p>
+<p><img src="eda_files/figure-html5/unnamed-chunk-11-1.png" width="624" /></p>
 </div>
 <h3 id="monthly-gpp">Monthly GPP</h3>
 <div class="layout-chunk" data-layout="l-body">
@@ -2416,7 +2433,7 @@ Show code
 </code></pre>
 </div>
 </details>
-<p><img src="eda_files/figure-html5/unnamed-chunk-11-1.png" width="624" /></p>
+<p><img src="eda_files/figure-html5/unnamed-chunk-12-1.png" width="624" /></p>
 </div>
 <h3 id="relation-between-in-situ-ndvi-and-in-situ-gpp">Relation between in-situ NDVI and in-situ GPP</h3>
 <div class="layout-chunk" data-layout="l-body">
@@ -2445,39 +2462,27 @@ Show code
 </code></pre>
 </div>
 </details>
-<img src="eda_files/figure-html5/unnamed-chunk-12-1.png" width="624" />
+<img src="eda_files/figure-html5/unnamed-chunk-13-1.png" width="624" />
 <details>
 <summary>
 Show code
 </summary>
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>## Puedo sacar la regresión lineal entre gpp y ndvi y con esta sacar los</span>
-<span class='co'>## distintos valores de gpp para cada día por ejemplo.</span>
-<span class='co'>## http://www.sthda.com/english/articles/40-regression-analysis/165-linear-regression-essentials-in-r/</span>
-<span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='va'>average_gpp</span> <span class='op'>~</span> <span class='va'>ndvi_mean</span>, data <span class='op'>=</span> <span class='va'>gpp_ndvi</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='va'>average_gpp</span> <span class='op'>~</span> <span class='va'>ndvi_mean</span>, data <span class='op'>=</span> <span class='va'>gpp_ndvi</span><span class='op'>)</span>
+<span class='co'># summary(model)</span>
+<span class='fu'><a href='https://easystats.github.io/report/reference/report.html'>report</a></span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span>
 </code></pre>
 </div>
 </details>
-<pre><code>
-Call:
-lm(formula = average_gpp ~ ndvi_mean, data = gpp_ndvi)
+<pre><code>We fitted a linear model (estimated using OLS) to predict average_gpp with ndvi_mean (formula: average_gpp ~ ndvi_mean). The model explains a statistically significant and substantial proportion of variance (R2 = 0.67, F(1, 47) = 96.39, p &lt; .001, adj. R2 = 0.67). The model&#39;s intercept, corresponding to ndvi_mean = 0, is at -1.17 (95% CI [-1.50, -0.83], t(47) = -7.02, p &lt; .001). Within this model:
 
-Residuals:
-     Min       1Q   Median       3Q      Max 
--0.30947 -0.07002  0.02409  0.08486  0.41852 
+  - The effect of ndvi mean is statistically significant and positive (beta = 2.19, 95% CI [1.74, 2.64], t(47) = 9.82, p &lt; .001; Std. beta = 0.82, 95% CI [0.65, 0.99])
 
-Coefficients:
-            Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  -1.1670     0.1662  -7.023 7.54e-09 ***
-ndvi_mean     2.1905     0.2231   9.818 5.78e-13 ***
----
-Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-
-Residual standard error: 0.1423 on 47 degrees of freedom
-Multiple R-squared:  0.6722,    Adjusted R-squared:  0.6652 
-F-statistic: 96.39 on 1 and 47 DF,  p-value: 5.779e-13</code></pre>
+Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using the Wald approximation.</code></pre>
 </div>
+<!-- Puedo sacar la regresión lineal entre gpp y ndvi y con esta sacar los -->
+<!-- distintos valores de gpp para cada día por ejemplo. -->
+<!-- http://www.sthda.com/english/articles/40-regression-analysis/165-linear-regression-essentials-in-r/ -->
 <h2 id="modis-data-exploration">MODIS data exploration</h2>
 <p>MODIS data collected for the site have 3 variables of interest:</p>
 <ul>
@@ -2543,7 +2548,7 @@ Show code
 </code></pre>
 </div>
 </details>
-<p><img src="eda_files/figure-html5/unnamed-chunk-15-1.png" width="624" /></p>
+<p><img src="eda_files/figure-html5/unnamed-chunk-16-1.png" width="624" /></p>
 </div>
 <h3 id="ndvi-eda">NDVI EDA</h3>
 <div class="layout-chunk" data-layout="l-body">
@@ -2567,7 +2572,7 @@ Show code
 </code></pre>
 </div>
 </details>
-<p><img src="eda_files/figure-html5/unnamed-chunk-16-1.png" width="624" /></p>
+<p><img src="eda_files/figure-html5/unnamed-chunk-17-1.png" width="624" /></p>
 </div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->

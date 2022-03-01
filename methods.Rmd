@@ -38,6 +38,11 @@ the Application for Extracting and Exploring Analysis Ready Samples (AρρEEARS)
 (AppEEARS Team. 2022). A pixel that matched the tower position was selected which
 have an spatial resolution of 500 m.
 
+For models, all outliers were remove with the interquartile method assuming that values
+that have an interquartile range 1.5 greater than the third quartile or 1.5 
+less than the first quartile can be due to sensor errors. MODIS data was 
+filtered to remove bad data quality points when flagged as such.
+
 For more detail on the datasets please check the [data exploration section](https://ronnyhdez.github.io/gpp_remote_sensing/eda.html)
 
 <!-- Visual Elements – These are probably most important in this section to keep your -->

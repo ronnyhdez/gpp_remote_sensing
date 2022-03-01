@@ -2115,7 +2115,6 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!-- Conclusions, About, References – You may add these as additional pages,  -->
 <!-- paragraphs or footnotes.  -->
 <h2 id="results">Results</h2>
-<h2 id="conclusions">Conclusions</h2>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
@@ -2135,24 +2134,187 @@ Show code
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='op'>(</span>
     gpp <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>gpp</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
   <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>origin <span class='op'>=</span> <span class='st'>"modis"</span><span class='op'>)</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>origin <span class='op'>=</span> <span class='st'>"modis"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>date</span> <span class='op'>&gt;</span> <span class='fu'><a href='https://lubridate.tidyverse.org/reference/ymd.html'>ymd</a></span><span class='op'>(</span><span class='st'>"2013-04-30"</span><span class='op'>)</span><span class='op'>)</span>
 
 <span class='va'>rec_both</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_rows</a></span><span class='op'>(</span><span class='va'>rec_monthly_gpp</span>, <span class='va'>rec_modis_gpp</span><span class='op'>)</span>
 
 <span class='va'>rec_both</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>date</span>, y <span class='op'>=</span> <span class='va'>gpp</span>, group <span class='op'>=</span> <span class='va'>origin</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='va'>origin</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_linedraw</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='va'>origin</span><span class='op'>)</span>, size <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_linedraw</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_date.html'>scale_x_date</a></span><span class='op'>(</span>date_labels <span class='op'>=</span> <span class='st'>"%b%Y"</span>, breaks <span class='op'>=</span> <span class='st'>"months"</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='op'>(</span>axis.text.x <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text</a></span><span class='op'>(</span>angle <span class='op'>=</span> <span class='fl'>90</span>, h <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"Date"</span>, y <span class='op'>=</span> <span class='st'>"GPP (mgm-2s-1)"</span>, color <span class='op'>=</span> <span class='st'>"Origin of GPP values"</span><span class='op'>)</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='op'>(</span>axis.text.x <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text</a></span><span class='op'>(</span>angle <span class='op'>=</span> <span class='fl'>70</span>, h <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"Date"</span>, y <span class='op'>=</span> <span class='st'>"GPP (mgm-2s-1)"</span>, color <span class='op'>=</span> <span class='st'>"GPP source"</span><span class='op'>)</span>
 </code></pre>
 </div>
 </details>
-<p><img src="results_files/figure-html5/unnamed-chunk-1-1.png" width="624" /></p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-1"></span>
+<img src="results_files/figure-html5/unnamed-chunk-1-1.png" alt="GPP trends over the years for MODIS and in-situ data. Despite having similar trends, range is higher for in-situ data than the MODIS derived GPP" width="624" />
+<p class="caption">
+Figure 1: GPP trends over the years for MODIS and in-situ data. Despite having similar trends, range is higher for in-situ data than the MODIS derived GPP
+</p>
 </div>
+</div>
+<h4 id="regression-trees">Regression trees</h4>
+<p>This section is still a <strong>Work In Progress</strong>. The objective is to apply a regression Random Forest using the meteorological variables as predictors of GPP. After the evaluation of the predictions also a variable importance analysis will be run.</p>
+<p>Given that GPP observations are monthly, this reduces the total amount of observations available, so bootstrapping is applied to the regression random forest.</p>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ndvi_summarized</span> <span class='op'>&lt;-</span> <span class='va'>ndvi_moha</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>year_mon <span class='op'>=</span> <span class='fu'>zoo</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/zoo/man/yearmon.html'>as.yearmon</a></span><span class='op'>(</span><span class='va'>date</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>year_mon</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>
+    ndvi_mean <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>ndvi</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
+    ndvi_sd <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='op'>(</span><span class='va'>ndvi</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+  <span class='op'>)</span>
+
+<span class='va'>biomet_summarized</span> <span class='op'>&lt;-</span> <span class='va'>biomet</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>year_mon <span class='op'>=</span> <span class='fu'>zoo</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/zoo/man/yearmon.html'>as.yearmon</a></span><span class='op'>(</span><span class='va'>date</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>year_mon</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>
+    <span class='co'># sd_par_incoming = sd(par_incoming, na.rm = TRUE), </span>
+    <span class='co'># sd_swc          = sd(swc, na.rm = TRUE), </span>
+    <span class='co'># sd_vpd          = sd(vpd, na.rm = TRUE), </span>
+    <span class='co'># sd_r_h          = sd(r_h, na.rm = TRUE), </span>
+    <span class='co'># sd_tair         = sd(tair, na.rm = TRUE), </span>
+    <span class='co'># sd_nee          = sd(nee, na.rm = TRUE), </span>
+    <span class='co'># sd_le           = sd(le, na.rm = TRUE), </span>
+    <span class='co'># sd_h            = sd(h, na.rm = TRUE),</span>
+    mean_par_incoming <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='op'>(</span><span class='va'>par_incoming</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>, 
+    mean_swc          <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='op'>(</span><span class='va'>swc</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>, 
+    mean_vpd          <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='op'>(</span><span class='va'>vpd</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>, 
+    mean_r_h          <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='op'>(</span><span class='va'>r_h</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>, 
+    mean_tair         <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='op'>(</span><span class='va'>tair</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>, 
+    <span class='co'># mean_nee          = sd(nee, na.rm = TRUE), </span>
+    mean_le           <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='op'>(</span><span class='va'>le</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>, 
+    mean_h            <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='op'>(</span><span class='va'>h</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+  <span class='op'>)</span>
+
+<span class='va'>summarize_dataset</span> <span class='op'>&lt;-</span> <span class='va'>monthly_gpp</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>year_mon <span class='op'>=</span> <span class='fu'>zoo</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/zoo/man/yearmon.html'>as.yearmon</a></span><span class='op'>(</span><span class='va'>date</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>inner_join</a></span><span class='op'>(</span><span class='va'>ndvi_summarized</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>inner_join</a></span><span class='op'>(</span><span class='va'>biomet_summarized</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>123</span><span class='op'>)</span>
+<span class='va'>gpp_split</span> <span class='op'>&lt;-</span> <span class='fu'>initial_split</span><span class='op'>(</span><span class='va'>summarize_dataset</span><span class='op'>)</span>
+<span class='va'>gpp_train</span> <span class='op'>&lt;-</span> <span class='fu'>training</span><span class='op'>(</span><span class='va'>gpp_split</span><span class='op'>)</span>
+<span class='va'>gpp_test</span> <span class='op'>&lt;-</span> <span class='fu'>testing</span><span class='op'>(</span><span class='va'>gpp_split</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>123</span><span class='op'>)</span>
+<span class='va'>gpp_boot</span> <span class='op'>&lt;-</span> <span class='fu'>bootstraps</span><span class='op'>(</span><span class='va'>gpp_train</span><span class='op'>)</span>
+<span class='va'>gpp_boot</span>
+</code></pre>
+</div>
+</details>
+<pre><code># Bootstrap sampling 
+# A tibble: 25 × 2
+   splits          id         
+   &lt;list&gt;          &lt;chr&gt;      
+ 1 &lt;split [33/14]&gt; Bootstrap01
+ 2 &lt;split [33/13]&gt; Bootstrap02
+ 3 &lt;split [33/12]&gt; Bootstrap03
+ 4 &lt;split [33/9]&gt;  Bootstrap04
+ 5 &lt;split [33/13]&gt; Bootstrap05
+ 6 &lt;split [33/14]&gt; Bootstrap06
+ 7 &lt;split [33/14]&gt; Bootstrap07
+ 8 &lt;split [33/13]&gt; Bootstrap08
+ 9 &lt;split [33/13]&gt; Bootstrap09
+10 &lt;split [33/12]&gt; Bootstrap10
+# … with 15 more rows</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>rf_spec</span> <span class='op'>&lt;-</span> <span class='fu'>rand_forest</span><span class='op'>(</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'>set_mode</span><span class='op'>(</span><span class='st'>"regression"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'>set_engine</span><span class='op'>(</span><span class='st'>"ranger"</span><span class='op'>)</span>
+
+<span class='va'>rf_spec</span>
+</code></pre>
+</div>
+</details>
+<pre><code>Random Forest Model Specification (regression)
+
+Computational engine: ranger </code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>gpp_wf</span> <span class='op'>&lt;-</span> <span class='fu'>workflow</span><span class='op'>(</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'>add_formula</span><span class='op'>(</span><span class='va'>average_gpp</span> <span class='op'>~</span> <span class='va'>.</span><span class='op'>)</span>
+
+<span class='va'>gpp_wf</span>
+</code></pre>
+</div>
+</details>
+<pre><code>══ Workflow ══════════════════════════════════════════════════════════
+Preprocessor: Formula
+Model: None
+
+── Preprocessor ──────────────────────────────────────────────────────
+average_gpp ~ .</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>rf_rs</span> <span class='op'>&lt;-</span> <span class='va'>gpp_wf</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'>add_model</span><span class='op'>(</span><span class='va'>rf_spec</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'>fit_resamples</span><span class='op'>(</span>
+    resamples <span class='op'>=</span> <span class='va'>gpp_boot</span>,
+    control <span class='op'>=</span> <span class='fu'>control_resamples</span><span class='op'>(</span>save_pred <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+  <span class='op'>)</span>
+
+<span class='va'>rf_rs</span>
+</code></pre>
+</div>
+</details>
+<pre><code># Resampling results
+# Bootstrap sampling 
+# A tibble: 25 × 5
+   splits          id          .metrics         .notes   .predictions
+   &lt;list&gt;          &lt;chr&gt;       &lt;list&gt;           &lt;list&gt;   &lt;list&gt;      
+ 1 &lt;split [33/14]&gt; Bootstrap01 &lt;tibble [2 × 4]&gt; &lt;tibble&gt; &lt;tibble&gt;    
+ 2 &lt;split [33/13]&gt; Bootstrap02 &lt;tibble [2 × 4]&gt; &lt;tibble&gt; &lt;tibble&gt;    
+ 3 &lt;split [33/12]&gt; Bootstrap03 &lt;tibble [2 × 4]&gt; &lt;tibble&gt; &lt;tibble&gt;    
+ 4 &lt;split [33/9]&gt;  Bootstrap04 &lt;tibble [2 × 4]&gt; &lt;tibble&gt; &lt;tibble&gt;    
+ 5 &lt;split [33/13]&gt; Bootstrap05 &lt;tibble [2 × 4]&gt; &lt;tibble&gt; &lt;tibble&gt;    
+ 6 &lt;split [33/14]&gt; Bootstrap06 &lt;tibble [2 × 4]&gt; &lt;tibble&gt; &lt;tibble&gt;    
+ 7 &lt;split [33/14]&gt; Bootstrap07 &lt;tibble [2 × 4]&gt; &lt;tibble&gt; &lt;tibble&gt;    
+ 8 &lt;split [33/13]&gt; Bootstrap08 &lt;tibble [2 × 4]&gt; &lt;tibble&gt; &lt;tibble&gt;    
+ 9 &lt;split [33/13]&gt; Bootstrap09 &lt;tibble [2 × 4]&gt; &lt;tibble&gt; &lt;tibble&gt;    
+10 &lt;split [33/12]&gt; Bootstrap10 &lt;tibble [2 × 4]&gt; &lt;tibble&gt; &lt;tibble&gt;    
+# … with 15 more rows</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>## Evaluate model</span>
+<span class='fu'>collect_metrics</span><span class='op'>(</span><span class='va'>rf_rs</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code># A tibble: 2 × 6
+  .metric .estimator   mean     n std_err .config             
+  &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
+1 rmse    standard   0.0889    25 0.00591 Preprocessor1_Model1
+2 rsq     standard   0.893     25 0.0122  Preprocessor1_Model1</code></pre>
+</div>
+<h2 id="conclusions">Conclusions</h2>
 <h2 id="references">References</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<blockquote>
+<p>James, G., Witten, D., Hastie, T., &amp; Tibshirani, R. (2013). An introduction to statistical learning (Vol. 112, p. 18). New York: springer.</p>
+</blockquote>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>

@@ -25,7 +25,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 Quantifying gross primary production (GPP) is essential for understanding land-atmosphere carbon exchange (Kohler 2018), ecosystem function, and ecosystem responses to climate change (Guan et al., 2022; Brown et al., 2021; Myneni et al., 1995). GPP is the total amount of carbon fixation by plants through photosynthesis (Badgley et al., 2019). With recent advances in technology for remote sensing and more computational power available with lower costs (Gorelick et al., 2017), global mapping of photosynthesis is being done by more scientists (Ryu et al., 2019). Given that GPP cannot be directly estimated from satellite remote sensing techniques, the use of vegetation indices has been a widely used method to approximate and quantify GPP (Ryu et al., 2019). However, estimates remain with high uncertainties and validation efforts are required to characterize these and improve accuracy. (Anav et al., 2015; Brown et al 2021)
 
-```{r fig.cap = "Land-atmosphere carbon exchange", out.extra = "class=external", layout="l-body-outset"}
+```{r fig.cap = "Santa Rosa National Park ecosystem in rainy season. Arrows represent a simplified mechanism of land-atmosphere carbon exchange", out.extra = "class=external", layout="l-body-outset"}
 knitr::include_graphics("img/experimental_3.png")
 ```
 
