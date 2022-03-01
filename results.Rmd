@@ -22,6 +22,7 @@ library(visdat)
 library(corrplot)
 library(tidyr)
 library(rmarkdown)
+library(tidymodels)
 
 
 precipitation <- 
@@ -102,11 +103,7 @@ modis_indices <-
 
 ## Results
 
-
-## Conclusions
-
-
-```{r}
+```{r fig.cap = "GPP trends over the years for MODIS and in-situ data. Despite having similar trends, range is higher for in-situ data than the MODIS derived GPP"}
 # Plot with both GPP's
 rec_monthly_gpp <- monthly_gpp %>% 
   select(date, average_gpp) %>% 
@@ -120,18 +117,109 @@ rec_modis_gpp <- modis_gpp %>%
   summarise(
     gpp = mean(gpp, na.rm = TRUE)
   ) %>% 
-  mutate(origin = "modis")
+  mutate(origin = "modis") %>% 
+  filter(date > ymd("2013-04-30"))
 
 rec_both <- bind_rows(rec_monthly_gpp, rec_modis_gpp)
 
 rec_both %>% 
   ggplot(aes(x = date, y = gpp, group = origin)) +
-  geom_line(aes(color = origin)) +
-  theme_linedraw() +
+  geom_line(aes(color = origin), size = 1) +
+  theme_linedraw(base_size = 12) +
   scale_x_date(date_labels = "%b%Y", breaks = "months") +
-  theme(axis.text.x = element_text(angle = 90, h = 1)) +
-  labs(x = "Date", y = "GPP (mgm-2s-1)", color = "Origin of GPP values")
+  theme(axis.text.x = element_text(angle = 70, h = 1)) +
+  labs(x = "Date", y = "GPP (mgm-2s-1)", color = "GPP source")
 ```
+
+#### Regression trees
+
+This section is still a **Work In Progress**. The objective is to apply a
+regression Random Forest using the meteorological variables as predictors of 
+GPP. After the evaluation of the predictions also a variable importance
+analysis will be run.
+
+Given that GPP observations are monthly, this reduces the total amount of 
+observations available, so bootstrapping is applied to the regression random
+forest.
+
+```{r}
+ndvi_summarized <- ndvi_moha %>% 
+  mutate(year_mon = zoo::as.yearmon(date)) %>% 
+  group_by(year_mon) %>% 
+  summarize(
+    ndvi_mean = mean(ndvi, na.rm = TRUE),
+    ndvi_sd = sd(ndvi, na.rm = TRUE)
+  )
+
+biomet_summarized <- biomet %>% 
+  mutate(year_mon = zoo::as.yearmon(date)) %>% 
+  group_by(year_mon) %>% 
+  summarize(
+    # sd_par_incoming = sd(par_incoming, na.rm = TRUE), 
+    # sd_swc          = sd(swc, na.rm = TRUE), 
+    # sd_vpd          = sd(vpd, na.rm = TRUE), 
+    # sd_r_h          = sd(r_h, na.rm = TRUE), 
+    # sd_tair         = sd(tair, na.rm = TRUE), 
+    # sd_nee          = sd(nee, na.rm = TRUE), 
+    # sd_le           = sd(le, na.rm = TRUE), 
+    # sd_h            = sd(h, na.rm = TRUE),
+    mean_par_incoming = sd(par_incoming, na.rm = TRUE), 
+    mean_swc          = sd(swc, na.rm = TRUE), 
+    mean_vpd          = sd(vpd, na.rm = TRUE), 
+    mean_r_h          = sd(r_h, na.rm = TRUE), 
+    mean_tair         = sd(tair, na.rm = TRUE), 
+    # mean_nee          = sd(nee, na.rm = TRUE), 
+    mean_le           = sd(le, na.rm = TRUE), 
+    mean_h            = sd(h, na.rm = TRUE)
+  )
+
+summarize_dataset <- monthly_gpp %>% 
+  mutate(year_mon = zoo::as.yearmon(date)) %>% 
+  inner_join(ndvi_summarized) %>% 
+  inner_join(biomet_summarized) %>% 
+  drop_na()
+
+set.seed(123)
+gpp_split <- initial_split(summarize_dataset)
+gpp_train <- training(gpp_split)
+gpp_test <- testing(gpp_split)
+
+set.seed(123)
+gpp_boot <- bootstraps(gpp_train)
+gpp_boot
+
+rf_spec <- rand_forest() %>%
+  set_mode("regression") %>%
+  set_engine("ranger")
+
+rf_spec
+
+gpp_wf <- workflow() %>%
+  add_formula(average_gpp ~ .)
+
+gpp_wf
+
+
+rf_rs <- gpp_wf %>%
+  add_model(rf_spec) %>%
+  fit_resamples(
+    resamples = gpp_boot,
+    control = control_resamples(save_pred = TRUE)
+  )
+
+rf_rs
+
+
+## Evaluate model
+collect_metrics(rf_rs)
+```
+
+
+## Conclusions
+
+
+
 
 ## References
 
+ > James, G., Witten, D., Hastie, T., & Tibshirani, R. (2013). An introduction to statistical learning (Vol. 112, p. 18). New York: springer.

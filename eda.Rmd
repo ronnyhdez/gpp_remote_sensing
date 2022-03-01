@@ -22,6 +22,7 @@ library(visdat)
 library(corrplot)
 library(tidyr)
 library(rmarkdown)
+library(report)
 
 
 precipitation <- 
@@ -138,7 +139,7 @@ ndvi_moha %>%
 
 ### Precipitation EDA
 
-```{r}
+```{r fig.cap = "Total precipitation (mm) for Santa Rosa National Park. Year 2015 had the lowest values of precicipitation"}
 precipitation %>% 
   mutate(year_mon = zoo::as.yearmon(date)) %>% 
   group_by(year_mon) %>% 
@@ -150,7 +151,10 @@ precipitation %>%
   theme_light() +
   theme(axis.text.x = element_text(angle = 90, h = 1)) +
   labs(x = "Date", y = "Total precipitation per month (mm)")
+```
 
+
+```{r fig.cap = "Total precipitation (mm) arrange per month for comparison per each year. Patterns for 2014 and 2015 as the months with less precipitation are more evident"}
 ### Agrupando los meses
 precipitation %>%
   mutate(year_mon = zoo::as.yearmon(date)) %>%
@@ -173,7 +177,7 @@ precipitation %>%
 
 ### Environmental drivers
 
-```{r}
+```{r fig.cap = "Seasonal pattern of VPD (hPa). Months asociated with lower precipitation rates have the highest values of VPD"}
 biomet %>% 
   mutate(year_mon = zoo::as.yearmon(date)) %>%
   filter(vpd > 0) %>% 
@@ -287,12 +291,15 @@ gpp_ndvi %>%
   theme_linedraw() +
   geom_smooth(method = "lm")
 
-## Puedo sacar la regresión lineal entre gpp y ndvi y con esta sacar los
-## distintos valores de gpp para cada día por ejemplo.
-## http://www.sthda.com/english/articles/40-regression-analysis/165-linear-regression-essentials-in-r/
+
 model <- lm(average_gpp ~ ndvi_mean, data = gpp_ndvi)
-summary(model)
+# summary(model)
+report(model)
 ```
+
+<!-- Puedo sacar la regresión lineal entre gpp y ndvi y con esta sacar los -->
+<!-- distintos valores de gpp para cada día por ejemplo. -->
+<!-- http://www.sthda.com/english/articles/40-regression-analysis/165-linear-regression-essentials-in-r/ -->
 
 ## MODIS data exploration
 
