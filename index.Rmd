@@ -1,5 +1,5 @@
 ---
-title: "Assesing uncertainties related to satellite remote sensing indices to estimate Gross Primary Production"
+title: "Validating remotely sensed estimates of gross primary productivity"
 description: |
   How reliable are satellite remote sensing products to estimate GPP in a tropical dry forest?
 site: distill::distill_website

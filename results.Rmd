@@ -13,6 +13,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
+# Libraries
 library(readr)
 library(dplyr)
 library(ggplot2)
@@ -23,8 +24,10 @@ library(corrplot)
 library(tidyr)
 library(rmarkdown)
 library(tidymodels)
+library(report)
+library(cowplot)
 
-
+# Import data sets
 precipitation <- 
   read_csv("data/hardvard_dataverse_tropidry/Daily_Precipitation_2013_to_2016.csv") %>% 
   clean_names() %>% 
@@ -103,6 +106,206 @@ modis_indices <-
 
 ## Results
 
+### How is the relation between MODIS EVI NDVI & GPP products?
+
+We are using products from MODIS which are: EVI, NDVI and GPP. These are already
+calculated values that are available to users. These products comes with 
+variables that flags low quality values. In this case we have a data set with 
+flags for GPP and a data set with flags for the indices EVI and NDVI.
+
+All values with flags that advertised low quality data points were remove from
+both data sets. Then a pearson correlation was performed to explore the
+relation between GPP and NDVI, and GPP with EVI. 
+
+```{r MODIS data quality filtering}
+## Filter observations with good quality
+## This takes from 94 observations to 53 observations. Remove 41 observations
+modis_indices_clean <- modis_indices %>% 
+  filter(reliability_modland_description == "Good data, use with confidence") %>% 
+  select(date, ndvi, evi) #%>% 
+  # mutate(week = week(date),
+  #        year = year(date))
+
+## Filter observations with good quality
+## This takes from 183 observations to 114. Remove 69 observations.
+modis_gpp_clean <- modis_gpp %>% 
+  filter(modland_description == "Good quality",
+         cloud_state_description == "Significant clouds NOT present (clear)",
+         scf_qc_description == "Very best possible") %>% 
+  select(date, gpp) #%>% 
+  # mutate(week = week(date),
+  #        year = year(date))
+
+modis_join <- modis_gpp_clean %>% 
+  full_join(modis_indices_clean, by = c("date"))
+```
+
+As validation for the relations between products from MODIS, I proceed to 
+compare NDVI against GPP to check how is the relation between these variables.
+
+```{r, fig.cap = "Relation between NDVI and GPP products from MODIS for the Santa Rosa National Park"}
+#### Relation between NDVI and GPP from MODIS
+gpp_ndvi <- modis_join %>% 
+  ggplot(aes(x = ndvi, y = gpp)) +
+  geom_point(color = "#FF3A1D", size = 3.5) +
+  geom_smooth(method = "lm", color = "#4E5C68") +
+  theme_light(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  labs(x = "NDVI", y = "GPP (mgm-2s-1)")
+
+#### Relation between EVI and GPP from MODIS
+gpp_evi <- modis_join %>% 
+  ggplot(aes(x = evi, y = gpp)) +
+  geom_point(color = "#FF3A1D", size = 3.5) +
+  geom_smooth(method = "lm", color = "#4E5C68") +
+  theme_light(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  labs(x = "EVI", y = "GPP (mgm-2s-1)")
+
+## Arrange both plots in one figure:
+plot_grid(gpp_ndvi, gpp_evi, labels = c('A', 'B'), label_size = 12)
+```
+
+```{r corr results MODIS products}
+ndvi_corr_test <- cor.test(modis_join$ndvi, modis_join$gpp)
+evi_corr_test <- cor.test(modis_join$evi, modis_join$gpp)
+
+# Check the report of the result
+# report(ndvi_corr_test)
+# report(evi_corr_test)
+```
+
+The Pearson's product-moment correlation between **NDVI and GPP** products from
+MODIS is positive and statistically significant. (r = 0.81, 95% CI [0.65, 0.90],
+t(34) = 8.01, p < .001). For **EVI and GPP** the Pearson's product-moment 
+correlation is is positive, and statistically significant (r = 0.70, 
+95% CI [0.48, 0.84], t(34) = 5.70, p < .001)
+
+ - NDVI have a higher positive correlation with GPP product from MODIS than EVI.
+ 
+### How is the relation between MODIS products and GPP estimated in-situ?
+
+Now that I checked the relation between the MODIS products, I can compared and
+evaluate the relation between the MODIS products with the GPP estimated in-situ.
+The clean data sets from MODIS products were used here altogether with the GPP
+data set with the estimations per month from Santa Rosa National Park.
+
+```{r}
+average_gpp <- modis_gpp_clean %>% 
+  group_by(zoo::as.yearmon(date)) %>% 
+  summarise(
+    average_modis_gpp = mean(gpp)
+  ) %>% 
+  rename(month_year = `zoo::as.yearmon(date)`)
+
+modis_in_situ_gpp <- monthly_gpp %>% 
+  mutate(month_year = zoo::as.yearmon(date)) %>% 
+  select(month_year, average_gpp) %>% 
+  full_join(average_gpp, by = "month_year")
+
+modis_in_situ_gpp %>% 
+  ggplot(aes(x = average_gpp, y = average_modis_gpp)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+cor.test(modis_in_situ_gpp$average_gpp, modis_in_situ_gpp$average_modis_gpp)
+```
+
+### Does MODIS NDVI correlates with GPP in-situ?
+
+```{r}
+ndvi_gpp_in_situ <- modis_indices_clean %>% 
+  group_by(zoo::as.yearmon(date)) %>% 
+  summarise(
+    ndvi_mean = mean(ndvi, na.rm = TRUE),
+    evi_mean = mean(evi, na.rm = TRUE)
+  ) %>% 
+  rename(month_year = `zoo::as.yearmon(date)`) %>%
+  full_join(modis_in_situ_gpp, by = "month_year")
+
+ndvi_gpp_in_situ %>% 
+  ggplot(aes(x = ndvi_mean, y = average_gpp)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+cor.test(ndvi_gpp_in_situ$ndvi_mean, ndvi_gpp_in_situ$average_gpp)
+```
+
+### Does MODIS EVI correlates with GPP in-situ?
+
+```{r}
+ndvi_gpp_in_situ %>% 
+  ggplot(aes(x = evi_mean, y = average_gpp)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+cor.test(ndvi_gpp_in_situ$evi_mean, ndvi_gpp_in_situ$average_gpp)
+```
+
+### Which are the values with the largest residuals?
+
+If I obtain those values with the largest residuals, then I can check the date
+from those values, and validate if they have something in common. This could
+give us clues about when an index works very well or when it has some bias.
+
+```{r}
+## Create the linear model and check results
+fit <- lm(average_gpp ~ evi_mean, data = ndvi_gpp_in_situ)
+summary(fit)
+```
+
+
+```{r}
+## Obtain data used in the model (without NA's) to paste residuals and explore
+## if there is a pattern of largest residuals in specific months
+model_observations <- fit[["model"]]
+model_residuals <- fit[["residuals"]] %>% 
+  as.data.frame() %>% 
+  rename("residuals" = ".")
+
+# Create dataset
+observations_residuals <- model_observations %>% 
+  left_join(ndvi_gpp_in_situ, by = c("average_gpp", "evi_mean")) %>% 
+  select(-average_modis_gpp, -ndvi_mean) %>% 
+  bind_cols(model_residuals)
+
+# Plot residuals through time
+observations_residuals %>% 
+  ggplot(aes(x = month_year, y = residuals)) +
+  geom_point() +
+  geom_smooth()
+
+## Take biomet variables to validate if there is a similar pattern:
+biomet_summarized <- biomet %>% 
+  group_by(zoo::as.yearmon(date)) %>% 
+  summarise(
+    par_incoming = mean(par_incoming, na.rm = TRUE),
+    swc = mean(swc, na.rm = TRUE),
+    vpd = mean(vpd, na.rm = TRUE),
+    r_h = mean(r_h, na.rm = TRUE),
+    tair = mean(tair, na.rm = TRUE),
+    le = mean(le, na.rm = TRUE),
+    h = mean(h, na.rm = TRUE)
+  ) %>% 
+  rename(month_year = `zoo::as.yearmon(date)`)
+
+check <- observations_residuals %>% 
+  left_join(biomet_summarized, by = "month_year") %>% 
+  select(-month_year) #%>% 
+  # cor()
+
+# library(PerformanceAnalytics)
+# chart.Correlation(check, histogram = TRUE, method = "pearson")
+```
+
+### Which meteorological variable have more influence in GPP in-situ?
+
+```{r}
+
+```
+
+### MODIS NDVI, EVI & GPP trends over time
+
 ```{r fig.cap = "GPP trends over the years for MODIS and in-situ data. Despite having similar trends, range is higher for in-situ data than the MODIS derived GPP"}
 # Plot with both GPP's
 rec_monthly_gpp <- monthly_gpp %>% 
@@ -122,6 +325,7 @@ rec_modis_gpp <- modis_gpp %>%
 
 rec_both <- bind_rows(rec_monthly_gpp, rec_modis_gpp)
 
+## Correlation trends between both GPP's`
 rec_both %>% 
   ggplot(aes(x = date, y = gpp, group = origin)) +
   geom_line(aes(color = origin), size = 1) +
@@ -130,6 +334,27 @@ rec_both %>%
   theme(axis.text.x = element_text(angle = 70, h = 1)) +
   labs(x = "Date", y = "GPP (mgm-2s-1)", color = "GPP source")
 ```
+
+### PCA for meteorological variables
+
+TODO: Implement nice PCA plot!!!
+```{r}
+# nrow(biomet)
+# biomet %>% drop_na() %>% nrow()
+biomet_pca <- biomet %>% 
+  select(-date, -year, -do_y, -hour) %>% 
+  drop_na() %>% 
+  princomp(cor = T)
+
+# biplot(biomet_pca)
+```
+
+### Gradient analysis
+
+```{r}
+
+```
+
 
 #### Regression trees
 

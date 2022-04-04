@@ -360,4 +360,26 @@ modis_indices %>%
   labs(x = "Date", y = "NDVI")
 ```
 
+### How many observations per month do we have?
 
+```{r}
+modis_indices %>% 
+  group_by(zoo::as.yearmon(date)) %>% 
+  tally() %>% 
+  ggplot(aes(x = `zoo::as.yearmon(date)`, y = n)) +
+  geom_col()
+
+modis_gpp %>% 
+  group_by(zoo::as.yearmon(date)) %>% 
+  tally() %>% 
+  ggplot(aes(x = `zoo::as.yearmon(date)`, y = n)) +
+  geom_col()
+```
+
+## Summary
+
+This is a bullet list with the main insights from the exploratory data analysis
+that can help to understand the models and the phenomena explained in the
+[Results and Discussion section](https://ronnyhdez.github.io/gpp_remote_sensing/results.html)
+
+ - bla bla
