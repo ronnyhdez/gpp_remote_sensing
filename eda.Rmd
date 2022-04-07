@@ -376,6 +376,118 @@ modis_gpp %>%
   geom_col()
 ```
 
+### What is the relation between EVI NDVI & GPP MODIS products?
+
+We are using products from MODIS which are: EVI, NDVI and GPP. These are already
+calculated values that are available to users. These products comes with
+variables that flags low quality values. In this case we have a data set with
+flags for GPP and a data set with flags for the indices EVI and NDVI.
+
+All values with flags that advertised low quality data points were remove from
+both data sets. Then a pearson correlation was performed to explore the relation
+between GPP and NDVI, and GPP with EVI.
+
+```{r MODIS data quality filtering}
+## Filter observations with good quality
+## This takes from 94 observations to 53 observations. Remove 41 observations
+modis_indices_clean <- modis_indices %>% 
+  filter(reliability_modland_description == "Good data, use with confidence") %>% 
+  select(date, ndvi, evi) #%>% 
+  # mutate(week = week(date),
+  #        year = year(date))
+
+## Filter observations with good quality
+## This takes from 183 observations to 114. Remove 69 observations.
+modis_gpp_clean <- modis_gpp %>% 
+  filter(modland_description == "Good quality",
+         cloud_state_description == "Significant clouds NOT present (clear)",
+         scf_qc_description == "Very best possible") %>% 
+  select(date, gpp) #%>% 
+  # mutate(week = week(date),
+  #        year = year(date))
+
+modis_join <- modis_gpp_clean %>% 
+  full_join(modis_indices_clean, by = c("date"))
+```
+
+As validation for the relations between products from MODIS, I proceed to
+compare NDVI and EVI against GPP to check how is the relation between these variables.
+
+```{r, fig.cap = "Relation between NDVI and GPP products from MODIS for the Santa Rosa National Park"}
+#### Relation between NDVI and GPP from MODIS
+gpp_ndvi <- modis_join %>% 
+  ggplot(aes(x = ndvi, y = gpp)) +
+  geom_point(color = "#FF3A1D", size = 3.5) +
+  geom_smooth(method = "lm", color = "#4E5C68") +
+  theme_light(base_size = 12) +
+  # theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  labs(x = "NDVI", y = "GPP (mgm-2s-1)")
+
+#### Relation between EVI and GPP from MODIS
+gpp_evi <- modis_join %>% 
+  ggplot(aes(x = evi, y = gpp)) +
+  geom_point(color = "#FF3A1D", size = 3.5) +
+  geom_smooth(method = "lm", color = "#4E5C68") +
+  theme_light(base_size = 12) +
+  # theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  labs(x = "EVI", y = "GPP (mg m-2 s-1)")
+
+## Arrange both plots in one figure:
+plot_grid(gpp_ndvi, gpp_evi, labels = c('A', 'B'), label_size = 12)
+```
+
+```{r corr results MODIS products}
+ndvi_corr_test <- cor.test(modis_join$ndvi, modis_join$gpp)
+evi_corr_test <- cor.test(modis_join$evi, modis_join$gpp)
+
+# Check the report of the result
+# report(ndvi_corr_test)
+# report(evi_corr_test)
+```
+
+The Pearson's product-moment correlation between **NDVI and GPP** products from
+MODIS is positive and statistically significant. (r = 0.81, 95% CI [0.65, 0.90],
+t(34) = 8.01, p \< .001). For **EVI and GPP** the Pearson's product-moment
+correlation is is positive, and statistically significant (r = 0.70, 95% CI
+[0.48, 0.84], t(34) = 5.70, p \< .001)
+
+-   NDVI have a higher positive correlation with GPP product from MODIS than
+    EVI.
+
+### MODIS NDVI, EVI & GPP trends over time
+
+```{r fig.cap = "GPP trends over the years for MODIS and in-situ data. Despite having similar trends, range is higher for in-situ data than the MODIS derived GPP"}
+# Plot with both GPP's
+rec_monthly_gpp <- monthly_gpp %>% 
+  select(date, average_gpp) %>% 
+  rename(gpp = average_gpp) %>% 
+  mutate(origin = "in_situ")
+
+rec_modis_gpp <- modis_gpp %>% 
+  select(date, gpp) %>% 
+  mutate(date = floor_date(date, "month")) %>% 
+  group_by(date) %>% 
+  summarise(
+    gpp = mean(gpp, na.rm = TRUE)
+  ) %>% 
+  mutate(origin = "modis") %>% 
+  filter(date > ymd("2013-04-30"))
+
+rec_both <- bind_rows(rec_monthly_gpp, rec_modis_gpp)
+
+## Correlation trends between both GPP's`
+rec_both %>% 
+  ggplot(aes(x = date, y = gpp, group = origin)) +
+  geom_line(aes(color = origin), size = 1) +
+  theme_linedraw(base_size = 12) +
+  scale_x_date(date_labels = "%b%Y", breaks = "months") +
+  theme(axis.text.x = element_text(angle = 70, h = 1)) +
+  labs(x = "Date", y = "GPP (mgm-2s-1)", color = "GPP source")
+```
+
+
+
+
 ## Summary
 
 This is a bullet list with the main insights from the exploratory data analysis
