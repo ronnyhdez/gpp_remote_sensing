@@ -284,7 +284,7 @@ ndvi_residuals <- ndvi_observations_residuals %>%
   labs(y = "Residuals GPP ~ MODIS_NDVI",
        x = "Date") + 
   ylim(-0.3, 0.3) +
-  theme_light(base_size = 12) +
+  theme_light(base_size = 10) +
   coord_flip()
 
 ## GPP ~ EVI residuals %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -320,16 +320,15 @@ evi_residuals <- evi_observations_residuals %>%
        x = "Date") + 
   ylim(-0.3, 0.3) +
   theme_light(base_size = 10) +
-  coord_flip()
+  coord_flip() 
 
 ## Arrange both plots in one figure:
 plot_grid(ndvi_residuals, evi_residuals, labels = c('A', 'B'), label_size = 12)
 ```
 
 Figure 2 shows the residuals values derived from the linear model between
-GPP with NDVI (A), and GPP with EVI (B).
-
-
+GPP with NDVI (A), and GPP with EVI (B). No patterns or consistency between
+months can be inferred from Figure 2.
 
 ##### Residuals and meteorological variables
 
@@ -344,16 +343,7 @@ In order to check this, a quadratic function was applied to residuals values so
 no negative values were in the data set.
 
 ```{r}
-# NDVI BIOMET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-## Table with months with higher residuals
-## Cuadratic formula to eliminate negative values
-observations_residuals <- ndvi_observations_residuals %>% 
-  mutate(positive_residuals = residuals ^ 2,
-         positive_residuals = round(positive_residuals, digits = 3)) %>% 
-  select(month_year, positive_residuals, residuals) %>% 
-  arrange(desc(positive_residuals))
-
-## Take biomet variables to validate if there is a similar pattern:
+# Summarise biomet %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 biomet_summarized <- biomet %>% 
   group_by(zoo::as.yearmon(date)) %>% 
   summarise(
@@ -367,18 +357,27 @@ biomet_summarized <- biomet %>%
   ) %>% 
   rename(month_year = `zoo::as.yearmon(date)`)
 
-check <- observations_residuals %>% 
+# NDVI BIOMET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+## Table with months with higher residuals
+## Cuadratic formula to eliminate negative values
+observations_residuals <- ndvi_observations_residuals %>% 
+  mutate(positive_residuals = residuals ^ 2,
+         positive_residuals = round(positive_residuals, digits = 3)) %>% 
+  select(month_year, positive_residuals, residuals) %>% 
+  arrange(desc(positive_residuals))
+
+ndvi_biomet <- observations_residuals %>% 
   left_join(biomet_summarized, by = "month_year") %>% 
-  select(-month_year) 
+  select(-month_year, -positive_residuals) 
 
 # library(PerformanceAnalytics)
 # chart.Correlation(check, histogram = TRUE, method = "pearson")
 ## Los residuales comparados parecen solo relacionarse con LE.
 
-# EVI BIOMET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+# EVI BIOMET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 ## Table with months with higher residuals
 ## Cuadratic formula to eliminate negative values
-observations_residuals <- observations_residuals %>% 
+observations_residuals <- evi_observations_residuals %>% 
   mutate(positive_residuals = residuals ^ 2,
          positive_residuals = round(positive_residuals, digits = 3)) %>% 
   select(month_year, positive_residuals, residuals) %>% 
@@ -388,7 +387,24 @@ observations_residuals <- observations_residuals %>%
 # biomet_summarized is already a created object.
 evi_biomet <- observations_residuals %>% 
   left_join(biomet_summarized, by = "month_year") %>% 
-  select(-month_year) 
+  select(-month_year, -positive_residuals) 
+
+## Exploratory PCA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# For EVI
+biomet_pca <- evi_biomet %>% 
+  # mutate(month_year = as.character(month_year)) %>% 
+  # select(-date, -year, -do_y, -hour) %>% 
+  drop_na() %>% 
+  princomp(cor = T)
+
+biplot(biomet_pca)
+
+# For NDVI
+biomet_pca <- ndvi_biomet %>% 
+  drop_na() %>% 
+  princomp(cor = T)
+
+biplot(biomet_pca)
 
 # library(PerformanceAnalytics)
 # chart.Correlation(evi_biomet, histogram = TRUE, method = "pearson")

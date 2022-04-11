@@ -8,6 +8,9 @@ output:
     code_folding: true
     toc: true
     toc_float: true
+editor_options: 
+  markdown: 
+    wrap: 80
 ---
 
 ```{r setup, include=FALSE}
@@ -23,6 +26,7 @@ library(corrplot)
 library(tidyr)
 library(rmarkdown)
 library(report)
+library(cowplot)
 
 
 precipitation <- 
@@ -83,27 +87,48 @@ modis_indices <-
            mod13q1_006_250m_16_days_pixel_reliability_modland_description)
 ```
 
+The **objective** of the Exploratory Data Analysis (EDA) is to check all the
+data sets available, evaluate if there is a need to clean and process the data
+further to be able to model and evaluate if there are patterns that I need to
+take into account.
+
+This EDA will be divided into two main sections: Santa Rosa National Park data
+and MODIS derived data.
+
 ## SRNP data exploration
 
-Santa Rosa National Park Environmental Super Site in Guanacaste, Costa Rica
-have several sensors to monitor environmental climate variables, radiation and
-fluxes.
+Santa Rosa National Park Environmental Super Site in Guanacaste, Costa Rica have
+several sensors to monitor environmental climate variables and fluxes.
 
 Given that variables such as NDVI and GPP can be calculate with instrumentation
 in the site, this ones will be included and name as `in-situ_variable_name` to
 differentiate them from the same variables obtained from the MODIS satellite
 images.
 
-| Dataset | Frequency | Date range |
-| ------- | --------- | ---------- |
-| Precipitation | Daily values | `2013-05-15 00:00:00 UTC` to `2017-05-17 23:30:00 UTC`|
-| Meteorological data | Half hour values | `2013-05-15 00:00:00 UTC` to `2017-05-17 23:30:00 UTC` |
-| Monthly Gross Primary Production (GPP) | Monthly values | `2013-05-01` to `2017-05-01`|
-| NDVI (Normalized Difference Vegetation Index) | Daily values | `2013-02-23 UTC` to `2022-01-01 UTC`
+The following table shows the data sets used to conduct this research. There are
+3 different data sets which contains variables of interest. Not all data sets
+have the same time range or the same time frequency for each observation:
+
++--------------------+--------------------------+-----------------------------+
+| Dataset            | Frequency                | Date range                  |
++====================+==========================+=============================+
+| Precipitation      | Daily values             | `2013-05-15 00:00:00 UTC`   |
+|                    |                          | to                          |
+|                    |                          | `2017-05-17 23:30:00 UTC`   |
++--------------------+--------------------------+-----------------------------+
+| Meteorological     | Half hour values         | `2013-05-15 00:00:00 UTC`   |
+| data               |                          | to                          |
+|                    |                          | `2017-05-17 23:30:00 UTC`   |
++--------------------+--------------------------+-----------------------------+
+| Monthly Gross      | Monthly values           | `2013-05-01` to             |
+| Primary Production |                          | `2017-05-01`                |
+| (GPP)              |                          |                             |
++--------------------+--------------------------+-----------------------------+
 
 ### Santa Rosa Data tables glimpse
 
-For Santa Rosa we have the following data sets:
+This section contains tables that shows the first 100 rows and all the variables
+contained in each of the data sets shown in the table above:
 
 #### Precipitation data
 
@@ -121,7 +146,7 @@ biomet %>%
   paged_table()
 ```
 
-#### GPP in-situ data
+#### Monthly GPP in-situ data
 
 ```{r}
 monthly_gpp %>% 
@@ -129,15 +154,21 @@ monthly_gpp %>%
   paged_table()
 ```
 
-#### NDVI in-situ data
+<!-- #### NDVI in-situ data -->
 
-```{r}
+```{r, echo =  FALSE, eval = FALSE}
 ndvi_moha %>% 
   slice(1:100) %>% 
   paged_table()
 ```
 
-### Precipitation EDA
+### Precipitation seasonal patterns
+
+The total annual precipitation in Santa Rosa National Park is between 700 and 
+2000 mm, with a dry season of 4 to 5 months where precipitation is less than 
+100 mm per month or even 0 mm (Sánchez-Azofeifa __et al.__, 2005). For the time
+period of this research, the site experimented a drought season in 2014 and 2015
+(Castro *et al.* 2018)
 
 ```{r fig.cap = "Total precipitation (mm) for Santa Rosa National Park. Year 2015 had the lowest values of precicipitation"}
 precipitation %>% 
@@ -153,8 +184,7 @@ precipitation %>%
   labs(x = "Date", y = "Total precipitation per month (mm)")
 ```
 
-
-```{r fig.cap = "Total precipitation (mm) arrange per month for comparison per each year. Patterns for 2014 and 2015 as the months with less precipitation are more evident"}
+```{r fig.cap = "Total precipitation (mm) arrange per month for comparison per each year. Patterns for 2014 and 2015 as the months with less precipitation are more evident", echo = FALSE, eval = FALSE}
 ### Agrupando los meses
 precipitation %>%
   mutate(year_mon = zoo::as.yearmon(date)) %>%
@@ -175,74 +205,118 @@ precipitation %>%
        fill = "Year")
 ```
 
-### Environmental drivers
+### Metereological variables
 
-```{r fig.cap = "Seasonal pattern of VPD (hPa). Months asociated with lower precipitation rates have the highest values of VPD"}
-biomet %>% 
-  mutate(year_mon = zoo::as.yearmon(date)) %>%
+From the site, there is instrumentation to measure environmental variables such
+as Vapor Pressure Deficit (VPA), Air Temperature (TA), Latent Heat (LH) and
+relative humidity (RH). In order to explore these variables, I plotted them with
+box plots to check the variability outliers and patterns per month, across all
+the time range available (May 2013 to May 2017).
+
+```{r fig.cap = "Seasonal pattern of environmental variables at Santa Rosa National Park. Yellow background denotes the year with less precipitation", layout="l-body-outset", fig.height = 9}
+
+vpd_plot <- biomet %>% 
+  mutate(year_mon = zoo::as.yearmon(date)) %>% 
   filter(vpd > 0) %>% 
-  ggplot(aes(x = as.factor(year_mon), y = vpd, fill = as.factor(year_mon))) +
+  ggplot(aes(x = as.factor(year_mon), y = vpd)) +
+  geom_rect(aes(xmin = "Jan 2015",
+                xmax = "Jan 2016",
+                ymin = 0,
+                ymax = Inf),
+            alpha = 0.05,
+            fill = "#D8E082") +
   stat_boxplot(geom = "errorbar", width = 0.25) +
   geom_boxplot() +
   scale_y_continuous(breaks = seq(-10, 40, by = 5)) +
   scale_fill_viridis_d() +
-  theme_light(base_size = 12) +
+  theme_light(base_size = 10) +
   theme(axis.text.x = element_text(angle = 90, h = 1)) +
   guides(fill = "none") +
-  labs(x = "Date", y = "Vapor presurre deficit (hPa)")
-```
+  labs(x = "Date", y = "VPD (hPa)")
 
-
-```{r}
-biomet %>% 
+at_plot <- biomet %>% 
   mutate(year_mon = zoo::as.yearmon(date)) %>%
-  # filter(vpd > 0) %>% 
-  ggplot(aes(x = as.factor(year_mon), y = tair, fill = as.factor(year_mon))) +
+  ggplot(aes(x = as.factor(year_mon), y = tair)) +
+  geom_rect(aes(xmin = "Jan 2015",
+                xmax = "Jan 2016",
+                ymin = 15,
+                ymax = Inf),
+            alpha = 0.05,
+            fill = "#D8E082") +
   stat_boxplot(geom = "errorbar", width = 0.25) +
   geom_boxplot() +
   scale_y_continuous(breaks = seq(15, 38, by = 2)) +
   scale_fill_viridis_d() +
-  theme_light(base_size = 12) +
+  theme_light(base_size = 10) +
   theme(axis.text.x = element_text(angle = 90, h = 1)) +
   guides(fill = "none") +
-  labs(x = "Date", y = "Air temperature (C)")
-```
+  labs(x = "Date", y = "TA (C)")
 
-
-```{r}
-biomet %>% 
+lh_plot <- biomet %>% 
   mutate(year_mon = zoo::as.yearmon(date)) %>%
   filter(le > 0) %>%
-  ggplot(aes(x = as.factor(year_mon), y = le, fill = as.factor(year_mon))) +
+  ggplot(aes(x = as.factor(year_mon), y = le)) +
+  geom_rect(aes(xmin = "Jan 2015",
+                xmax = "Jan 2016",
+                ymin = 0,
+                ymax = Inf),
+            alpha = 0.05,
+            fill = "#D8E082") +
   stat_boxplot(geom = "errorbar", width = 0.25) +
   geom_boxplot() +
-  # scale_y_continuous(breaks = seq(15, 38, by = 2)) +
   scale_fill_viridis_d() +
-  theme_light(base_size = 12) +
+  theme_light(base_size = 10) +
   theme(axis.text.x = element_text(angle = 90, h = 1)) +
   guides(fill = "none") +
-  labs(x = "Date", y = "Latent Heat (Wm-2)")
-```
+  labs(x = "Date", y = "LH (Wm-2)")
 
-
-```{r}
-biomet %>% 
+rh_plot <- biomet %>% 
   mutate(year_mon = zoo::as.yearmon(date)) %>%
-  # filter(le > 0) %>%
-  ggplot(aes(x = as.factor(year_mon), y = r_h, fill = as.factor(year_mon))) +
+  ggplot(aes(x = as.factor(year_mon), y = r_h)) +
+  geom_rect(aes(xmin = "Jan 2015",
+                xmax = "Jan 2016",
+                ymin = 0,
+                ymax = Inf),
+            alpha = 0.05,
+            fill = "#D8E082") +
   stat_boxplot(geom = "errorbar", width = 0.25) +
   geom_boxplot() +
-  # scale_y_continuous(breaks = seq(15, 38, by = 2)) +
   scale_fill_viridis_d() +
-  theme_light(base_size = 12) +
+  theme_light(base_size = 10) +
   theme(axis.text.x = element_text(angle = 90, h = 1)) +
   guides(fill = "none") +
-  labs(x = "Date", y = "Relative Humidity (%)")
+  labs(x = "Date", y = "RH (%)")
+
+swc_plot <- biomet %>% 
+  mutate(year_mon = zoo::as.yearmon(date)) %>%
+  filter(swc > 0) %>%
+  ggplot(aes(x = as.factor(year_mon), y = swc)) +
+  geom_rect(aes(xmin = "Jan 2015",
+                xmax = "Jan 2016",
+                ymin = 0,
+                ymax = Inf),
+            alpha = 0.05,
+            fill = "#D8E082") +
+  stat_boxplot(geom = "errorbar", width = 0.25) +
+  geom_boxplot() +
+  scale_fill_viridis_d() +
+  theme_light(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  guides(fill = "none") +
+  labs(x = "Date", y = "SWC (%)")
+
+
+plot_grid(vpd_plot, at_plot, lh_plot, rh_plot, swc_plot,
+          nrow = 5,
+          labels = "AUTO",
+          label_size = 10,
+          align = "v"
+)
 ```
 
-### NDVI
+<!-- ### NDVI -->
 
-```{r}
+```{r, echo = FALSE, eval = FALSE}
 ndvi_moha %>% 
   mutate(date = ymd(date)) %>% 
   filter(year(date) < 2017) %>% 
@@ -254,25 +328,30 @@ ndvi_moha %>%
   theme(axis.text.x = element_text(angle = 90, h = 1))
 ```
 
-### Monthly GPP
+### Monthly GPP estimated in-situ
 
-```{r}
+Monthly GPP values for the Santa Rosa National Park were obtained from the
+Harvard dataverse, as a result of the publication from Castro *et al.* 2018 were
+GPP was estimated using a light-response curve. Values presented here are the
+mean per month.
+
+```{r, fig.cap = "Monthly GPP values estimated in-situ for Santa Rosa National Park"}
 monthly_gpp %>% 
   ggplot(aes(x = date, y = average_gpp, group = 1)) +
   geom_errorbar(aes(ymin = average_gpp - gpp_stdev,
                     ymax = average_gpp + gpp_stdev),
-                colour = "#4D4D4D", width = .4) +
+                colour = "#4D4D4D", width = 20, size = 0.5) +
   geom_line(linetype = 2) +
   geom_point(color = "#FF3A1D", size = 3.5) +
   theme_linedraw() +
   scale_x_date(date_labels = "%b%Y", breaks = "months") +
   theme(axis.text.x = element_text(angle = 90, h = 1)) +
-  labs(x = "Date", y = "GPP (mgm-2s-1)")
+  labs(x = "Date", y = "GPP (mg m-2 s-1)")
 ```
 
-### Relation between in-situ NDVI and in-situ GPP
+<!-- ### Relation between in-situ NDVI and in-situ GPP -->
 
-```{r}
+```{r, echo = FALSE, eval = FALSE}
 ndvi_summarized <- ndvi_moha %>% 
   mutate(year_mon = zoo::as.yearmon(date)) %>% 
   group_by(year_mon) %>% 
@@ -294,22 +373,22 @@ gpp_ndvi %>%
 
 model <- lm(average_gpp ~ ndvi_mean, data = gpp_ndvi)
 # summary(model)
-report(model)
+# report(model)
 ```
 
 <!-- Puedo sacar la regresión lineal entre gpp y ndvi y con esta sacar los -->
+
 <!-- distintos valores de gpp para cada día por ejemplo. -->
+
 <!-- http://www.sthda.com/english/articles/40-regression-analysis/165-linear-regression-essentials-in-r/ -->
 
 ## MODIS data exploration
 
-MODIS data collected for the site have 3 variables of interest:
+MODIS data consist of 2 datasets: one with the GPP observations and a second one
+with the indices (NDVI and EVI) observations. In this section I will explore the
+data quality and possible relations between those variables.
 
- - NDVI
- - EVI
- - GPP
-
-### MODIS Data tables glimpse
+### MODIS data tables glimpse
 
 Data derived from satellite images for Santa Rosa is compose of following data
 sets:
@@ -330,25 +409,87 @@ modis_gpp %>%
   paged_table()
 ```
 
-### GPP EDA
+#### Observations per month
 
 ```{r}
+## This takes from 94 observations to 53 observations. Remove 41 observations
+modis_indices_clean <- modis_indices %>% 
+  filter(reliability_modland_description == "Good data, use with confidence") %>% 
+  select(date, ndvi, evi) 
+
+## Filter observations with good quality
+## This takes from 183 observations to 114. Remove 69 observations.
+modis_gpp_clean <- modis_gpp %>% 
+  filter(modland_description == "Good quality",
+         cloud_state_description == "Significant clouds NOT present (clear)",
+         scf_qc_description == "Very best possible") %>% 
+  select(date, gpp) 
+```
+
+Given that satellite images from MODIS consist of at least 2 observations per
+month for the site, we need to evaluate how many data points I have for the
+analysis after filtering out observations with low quality (clouds present and
+image quality assurance flags marked as bad)
+
+From MODIS I have two datasets (one composed with GPP observations and a second
+one composed with NDVI and EVI indices observations) the process was applied for
+both datasets. In the case of GPP I had in total `r nrow(modis_gpp)` and after
+filtering observations without good data quality the total observations
+remaining are `r nrow(modis_gpp_clean)`.
+
+For the EVI and NDVI data set, originally I had `r nrow(modis_indices)` and
+after the filtering, I obtained `r nrow(modis_indices_clean)` in total for
+further analysis.
+
+```{r, fig.cap = "MODIS NDVI and EVI observations after filtering bad quality data points from both datasets"}
+modis_indices_clean %>% 
+  group_by(zoo::as.yearmon(date)) %>% 
+  tally() %>% 
+  rename("date" = `zoo::as.yearmon(date)`, "total" = "n") %>% 
+  ggplot(aes(x = as.factor(date),
+             y = total))  +
+  geom_bar(stat = "identity", fill = "#75AADB") +
+  scale_y_continuous(breaks = seq(0, 3, by = 1)) +
+  labs(x = "Date",
+       y = "Total  MODIS indices observations") +
+  theme_light(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 90, h = 1))
+```
+
+
+```{r, fig.cap = "MODIS GPP observations after filtering bad quality data points from both datasets"}
 modis_gpp %>% 
+  group_by(zoo::as.yearmon(date)) %>% 
+  tally() %>% 
+  rename("date" = `zoo::as.yearmon(date)`, "total" = "n") %>% 
+  ggplot(aes(x = as.factor(date),
+             y = total))  +
+  geom_bar(stat = "identity", fill = "#75AADB") +
+  scale_y_continuous(breaks = seq(0, 5, by = 1)) +
+  labs(x = "Date",
+       y = "Total  MODIS GPP observations") +
+  theme_light(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 90, h = 1))
+```
+
+### GPP, NDVI, and EVI seasonal patterns
+
+Given that the time range of the data set selected for this research goes from
+November 2012 to March 2017 and that Santa Rosa National Park presents a rainy
+season and a dry season, I want to check first if there those seasonal patterns
+are reflected in the MODIS products:
+
+```{r}
+modis_gpp_clean %>% 
   ggplot(aes(x = date, y = gpp, group = 1)) +
   geom_line(linetype = 2) +
   geom_point(color = "#FF3A1D", size = 3.5) +
   theme_linedraw() +
   scale_x_date(date_labels = "%b%Y", breaks = "months") +
   theme(axis.text.x = element_text(angle = 90, h = 1)) +
-  labs(x = "Date", y = "GPP (mgm-2s-1)")
-```
+  labs(x = "Date", y = "GPP (mg m-2 s-1)")
 
-### NDVI EDA
-
-```{r}
-modis_indices %>% 
-  filter(reliability_modland_description !=
-           "Marginal data, Useful, but look at other QA information") %>% 
+modis_indices_clean %>% 
   mutate(date = ymd(date)) %>% 
   filter(ndvi > 0.2) %>% 
   ggplot(aes(x = date, y = ndvi)) +
@@ -360,23 +501,26 @@ modis_indices %>%
   labs(x = "Date", y = "NDVI")
 ```
 
-### How many observations per month do we have?
-
-```{r}
-modis_indices %>% 
-  group_by(zoo::as.yearmon(date)) %>% 
-  tally() %>% 
-  ggplot(aes(x = `zoo::as.yearmon(date)`, y = n)) +
-  geom_col()
-
-modis_gpp %>% 
-  group_by(zoo::as.yearmon(date)) %>% 
-  tally() %>% 
-  ggplot(aes(x = `zoo::as.yearmon(date)`, y = n)) +
-  geom_col()
-```
-
 ### What is the relation between EVI NDVI & GPP MODIS products?
+
+```{r MODIS data quality filtering}
+## Filter observations with good quality
+## This takes from 94 observations to 53 observations. Remove 41 observations
+modis_indices_clean <- modis_indices %>% 
+  filter(reliability_modland_description == "Good data, use with confidence") %>% 
+  select(date, ndvi, evi) 
+
+## Filter observations with good quality
+## This takes from 183 observations to 114. Remove 69 observations.
+modis_gpp_clean <- modis_gpp %>% 
+  filter(modland_description == "Good quality",
+         cloud_state_description == "Significant clouds NOT present (clear)",
+         scf_qc_description == "Very best possible") %>% 
+  select(date, gpp) 
+
+modis_join <- modis_gpp_clean %>% 
+  full_join(modis_indices_clean, by = c("date"))
+```
 
 We are using products from MODIS which are: EVI, NDVI and GPP. These are already
 calculated values that are available to users. These products comes with
@@ -387,31 +531,9 @@ All values with flags that advertised low quality data points were remove from
 both data sets. Then a pearson correlation was performed to explore the relation
 between GPP and NDVI, and GPP with EVI.
 
-```{r MODIS data quality filtering}
-## Filter observations with good quality
-## This takes from 94 observations to 53 observations. Remove 41 observations
-modis_indices_clean <- modis_indices %>% 
-  filter(reliability_modland_description == "Good data, use with confidence") %>% 
-  select(date, ndvi, evi) #%>% 
-  # mutate(week = week(date),
-  #        year = year(date))
-
-## Filter observations with good quality
-## This takes from 183 observations to 114. Remove 69 observations.
-modis_gpp_clean <- modis_gpp %>% 
-  filter(modland_description == "Good quality",
-         cloud_state_description == "Significant clouds NOT present (clear)",
-         scf_qc_description == "Very best possible") %>% 
-  select(date, gpp) #%>% 
-  # mutate(week = week(date),
-  #        year = year(date))
-
-modis_join <- modis_gpp_clean %>% 
-  full_join(modis_indices_clean, by = c("date"))
-```
-
 As validation for the relations between products from MODIS, I proceed to
-compare NDVI and EVI against GPP to check how is the relation between these variables.
+compare NDVI and EVI against GPP to check how is the relation between these
+variables.
 
 ```{r, fig.cap = "Relation between NDVI and GPP products from MODIS for the Santa Rosa National Park"}
 #### Relation between NDVI and GPP from MODIS
@@ -451,12 +573,9 @@ t(34) = 8.01, p \< .001). For **EVI and GPP** the Pearson's product-moment
 correlation is is positive, and statistically significant (r = 0.70, 95% CI
 [0.48, 0.84], t(34) = 5.70, p \< .001)
 
--   NDVI have a higher positive correlation with GPP product from MODIS than
-    EVI.
-
 ### MODIS NDVI, EVI & GPP trends over time
 
-```{r fig.cap = "GPP trends over the years for MODIS and in-situ data. Despite having similar trends, range is higher for in-situ data than the MODIS derived GPP"}
+```{r fig.cap = "GPP trends over the years for MODIS and in-situ data. Despite having similar trends, range is higher for in-situ data than the MODIS derived GPP", layout = "l-body-outset"}
 # Plot with both GPP's
 rec_monthly_gpp <- monthly_gpp %>% 
   select(date, average_gpp) %>% 
@@ -479,19 +598,29 @@ rec_both <- bind_rows(rec_monthly_gpp, rec_modis_gpp)
 rec_both %>% 
   ggplot(aes(x = date, y = gpp, group = origin)) +
   geom_line(aes(color = origin), size = 1) +
-  theme_linedraw(base_size = 12) +
+  theme_light(base_size = 10) +
   scale_x_date(date_labels = "%b%Y", breaks = "months") +
-  theme(axis.text.x = element_text(angle = 70, h = 1)) +
-  labs(x = "Date", y = "GPP (mgm-2s-1)", color = "GPP source")
+  theme(axis.text.x = element_text(angle = 90, h = 1)) +
+  labs(x = "Date", y = "GPP (mg m-2 s-1)", color = "GPP source")
 ```
-
-
-
 
 ## Summary
 
 This is a bullet list with the main insights from the exploratory data analysis
 that can help to understand the models and the phenomena explained in the
-[Results and Discussion section](https://ronnyhdez.github.io/gpp_remote_sensing/results.html)
+[Results and Discussion
+section](https://ronnyhdez.github.io/gpp_remote_sensing/results.html)
 
- - bla bla
+ - NDVI have a higher positive correlation with GPP product from MODIS than
+   EVI.
+ - Year 2015 was the lowest year in precipitation
+ - GPP estimated in-situ does not match the pattern of GPP obtained from the
+ MODIS product.
+    
+# References
+
+> Castro, S. M., Sanchez-Azofeifa, G. A., & Sato, H. (2018). Effect of drought
+> on productivity in a Costa Rican tropical dry forest. Environmental Research
+> Letters, 13(4), 045001.
+
+> Sánchez‐Azofeifa, G. A., Quesada, M., Rodríguez, J. P., Nassar, J. M., Stoner, K. E., Castillo, A., ... & Cuevas‐Reyes, P. (2005). Research priorities for Neotropical dry forests 1. Biotropica: The Journal of Biology and Conservation, 37(4), 477-485.
