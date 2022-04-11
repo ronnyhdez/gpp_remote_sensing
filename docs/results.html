@@ -2037,7 +2037,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </script>
 
   <!--/radix_placeholder_distill-->
-  <script src="site_libs/header-attrs-2.12/header-attrs.js"></script>
+  <script src="site_libs/header-attrs-2.13/header-attrs.js"></script>
   <script src="site_libs/popper-2.6.0/popper.min.js"></script>
   <link href="site_libs/tippy-6.2.7/tippy.css" rel="stylesheet" />
   <link href="site_libs/tippy-6.2.7/tippy-light-border.css" rel="stylesheet" />
@@ -2096,10 +2096,8 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <ul>
 <li><a href="#results">Results</a>
 <ul>
-<li><a href="#what-is-the-relation-between-modis-evi-ndvi-gpp-products">What is the relation between MODIS EVI NDVI &amp; GPP products?</a></li>
 <li><a href="#what-is-the-relation-between-modis-products-and-gpp-estimated-in-situ">What is the relation between MODIS products and GPP estimated in-situ?</a></li>
 <li><a href="#which-meteorological-variable-have-more-influence-in-gpp-in-situ">Which meteorological variable have more influence in GPP in-situ?</a></li>
-<li><a href="#modis-ndvi-evi-gpp-trends-over-time">MODIS NDVI, EVI &amp; GPP trends over time</a></li>
 <li><a href="#pca-for-meteorological-variables">PCA for meteorological variables</a></li>
 <li><a href="#gradient-analysis">Gradient analysis</a></li>
 </ul></li>
@@ -2123,139 +2121,10 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!-- Conclusions, About, References – You may add these as additional pages,  -->
 <!-- paragraphs or footnotes.  -->
 <h2 id="results">Results</h2>
-<h3 id="what-is-the-relation-between-modis-evi-ndvi-gpp-products">What is the relation between MODIS EVI NDVI &amp; GPP products?</h3>
-<p>We are using products from MODIS which are: EVI, NDVI and GPP. These are already calculated values that are available to users. These products comes with variables that flags low quality values. In this case we have a data set with flags for GPP and a data set with flags for the indices EVI and NDVI.</p>
-<p>All values with flags that advertised low quality data points were remove from both data sets. Then a pearson correlation was performed to explore the relation between GPP and NDVI, and GPP with EVI.</p>
-<div class="layout-chunk" data-layout="l-body">
-<details>
-<summary>
-Show code
-</summary>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>## Filter observations with good quality</span>
-<span class='co'>## This takes from 94 observations to 53 observations. Remove 41 observations</span>
-<span class='va'>modis_indices_clean</span> <span class='op'>&lt;-</span> <span class='va'>modis_indices</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>reliability_modland_description</span> <span class='op'>==</span> <span class='st'>"Good data, use with confidence"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>date</span>, <span class='va'>ndvi</span>, <span class='va'>evi</span><span class='op'>)</span> <span class='co'>#%&gt;% </span>
-  <span class='co'># mutate(week = week(date),</span>
-  <span class='co'>#        year = year(date))</span>
-
-<span class='co'>## Filter observations with good quality</span>
-<span class='co'>## This takes from 183 observations to 114. Remove 69 observations.</span>
-<span class='va'>modis_gpp_clean</span> <span class='op'>&lt;-</span> <span class='va'>modis_gpp</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>modland_description</span> <span class='op'>==</span> <span class='st'>"Good quality"</span>,
-         <span class='va'>cloud_state_description</span> <span class='op'>==</span> <span class='st'>"Significant clouds NOT present (clear)"</span>,
-         <span class='va'>scf_qc_description</span> <span class='op'>==</span> <span class='st'>"Very best possible"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>date</span>, <span class='va'>gpp</span><span class='op'>)</span> <span class='co'>#%&gt;% </span>
-  <span class='co'># mutate(week = week(date),</span>
-  <span class='co'>#        year = year(date))</span>
-
-<span class='va'>modis_join</span> <span class='op'>&lt;-</span> <span class='va'>modis_gpp_clean</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>full_join</a></span><span class='op'>(</span><span class='va'>modis_indices_clean</span>, by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"date"</span><span class='op'>)</span><span class='op'>)</span>
-</code></pre>
-</div>
-</details>
-</div>
-<p>As validation for the relations between products from MODIS, I proceed to compare NDVI against GPP to check how is the relation between these variables.</p>
-<div class="layout-chunk" data-layout="l-body">
-<details>
-<summary>
-Show code
-</summary>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#### Relation between NDVI and GPP from MODIS</span>
-<span class='va'>gpp_ndvi</span> <span class='op'>&lt;-</span> <span class='va'>modis_join</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>ndvi</span>, y <span class='op'>=</span> <span class='va'>gpp</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"#FF3A1D"</span>, size <span class='op'>=</span> <span class='fl'>3.5</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='op'>(</span>method <span class='op'>=</span> <span class='st'>"lm"</span>, color <span class='op'>=</span> <span class='st'>"#4E5C68"</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_light</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='co'># theme(axis.text.x = element_text(angle = 90, h = 1)) +</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"NDVI"</span>, y <span class='op'>=</span> <span class='st'>"GPP (mgm-2s-1)"</span><span class='op'>)</span>
-
-<span class='co'>#### Relation between EVI and GPP from MODIS</span>
-<span class='va'>gpp_evi</span> <span class='op'>&lt;-</span> <span class='va'>modis_join</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>evi</span>, y <span class='op'>=</span> <span class='va'>gpp</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"#FF3A1D"</span>, size <span class='op'>=</span> <span class='fl'>3.5</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='op'>(</span>method <span class='op'>=</span> <span class='st'>"lm"</span>, color <span class='op'>=</span> <span class='st'>"#4E5C68"</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_light</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='co'># theme(axis.text.x = element_text(angle = 90, h = 1)) +</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"EVI"</span>, y <span class='op'>=</span> <span class='st'>"GPP (mg m-2 s-1)"</span><span class='op'>)</span>
-
-<span class='co'>## Arrange both plots in one figure:</span>
-<span class='fu'><a href='https://wilkelab.org/cowplot/reference/plot_grid.html'>plot_grid</a></span><span class='op'>(</span><span class='va'>gpp_ndvi</span>, <span class='va'>gpp_evi</span>, labels <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'A'</span>, <span class='st'>'B'</span><span class='op'>)</span>, label_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span>
-</code></pre>
-</div>
-</details>
-<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-1"></span>
-<img src="results_files/figure-html5/unnamed-chunk-1-1.png" alt="Relation between NDVI and GPP products from MODIS for the Santa Rosa National Park" width="624" />
-<p class="caption">
-Figure 1: Relation between NDVI and GPP products from MODIS for the Santa Rosa National Park
-</p>
-</div>
-</div>
-<div class="layout-chunk" data-layout="l-body">
-<details>
-<summary>
-Show code
-</summary>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ndvi_corr_test</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/cor.test.html'>cor.test</a></span><span class='op'>(</span><span class='va'>modis_join</span><span class='op'>$</span><span class='va'>ndvi</span>, <span class='va'>modis_join</span><span class='op'>$</span><span class='va'>gpp</span><span class='op'>)</span>
-<span class='va'>evi_corr_test</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/cor.test.html'>cor.test</a></span><span class='op'>(</span><span class='va'>modis_join</span><span class='op'>$</span><span class='va'>evi</span>, <span class='va'>modis_join</span><span class='op'>$</span><span class='va'>gpp</span><span class='op'>)</span>
-
-<span class='co'># Check the report of the result</span>
-<span class='co'># report(ndvi_corr_test)</span>
-<span class='co'># report(evi_corr_test)</span>
-</code></pre>
-</div>
-</details>
-</div>
-<p>The Pearson’s product-moment correlation between <strong>NDVI and GPP</strong> products from MODIS is positive and statistically significant. (r = 0.81, 95% CI [0.65, 0.90], t(34) = 8.01, p &lt; .001). For <strong>EVI and GPP</strong> the Pearson’s product-moment correlation is is positive, and statistically significant (r = 0.70, 95% CI [0.48, 0.84], t(34) = 5.70, p &lt; .001)</p>
-<ul>
-<li>NDVI have a higher positive correlation with GPP product from MODIS than EVI.</li>
-</ul>
 <h3 id="what-is-the-relation-between-modis-products-and-gpp-estimated-in-situ">What is the relation between MODIS products and GPP estimated in-situ?</h3>
-<p>Now that I checked the relation between the MODIS products, I can compared and evaluate the relation between the MODIS products with the GPP estimated in-situ. The clean data sets from MODIS products were used here altogether with the GPP data set with the estimations per month from Santa Rosa National Park.</p>
-<div class="layout-chunk" data-layout="l-body">
-<details>
-<summary>
-Show code
-</summary>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>average_gpp</span> <span class='op'>&lt;-</span> <span class='va'>modis_gpp_clean</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='fu'>zoo</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/zoo/man/yearmon.html'>as.yearmon</a></span><span class='op'>(</span><span class='va'>date</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='op'>(</span>
-    average_modis_gpp <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>gpp</span><span class='op'>)</span>
-  <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename</a></span><span class='op'>(</span>month_year <span class='op'>=</span> <span class='va'>`zoo::as.yearmon(date)`</span><span class='op'>)</span>
-
-<span class='va'>modis_in_situ_gpp</span> <span class='op'>&lt;-</span> <span class='va'>monthly_gpp</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>month_year <span class='op'>=</span> <span class='fu'>zoo</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/zoo/man/yearmon.html'>as.yearmon</a></span><span class='op'>(</span><span class='va'>date</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>month_year</span>, <span class='va'>average_gpp</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>full_join</a></span><span class='op'>(</span><span class='va'>average_gpp</span>, by <span class='op'>=</span> <span class='st'>"month_year"</span><span class='op'>)</span>
-
-<span class='va'>modis_in_situ_gpp</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>average_gpp</span>, y <span class='op'>=</span> <span class='va'>average_modis_gpp</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"#FF3A1D"</span>, size <span class='op'>=</span> <span class='fl'>3.5</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='op'>(</span>method <span class='op'>=</span> <span class='st'>"lm"</span>, color <span class='op'>=</span> <span class='st'>"#4E5C68"</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_light</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"GPP (mg m-2 s-1)"</span>, y <span class='op'>=</span> <span class='st'>"GPP (mg m-2 s-1)"</span><span class='op'>)</span>
-</code></pre>
-</div>
-</details>
-<img src="results_files/figure-html5/corr_gpp_modis_in_situ-1.png" width="624" />
-<details>
-<summary>
-Show code
-</summary>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>gpp_modis_in_situ</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/cor.test.html'>cor.test</a></span><span class='op'>(</span><span class='va'>modis_in_situ_gpp</span><span class='op'>$</span><span class='va'>average_gpp</span>,
-                              <span class='va'>modis_in_situ_gpp</span><span class='op'>$</span><span class='va'>average_modis_gpp</span><span class='op'>)</span>
-</code></pre>
-</div>
-</details>
-</div>
+<p>We have two indices derived from MODIS that can have a relation with the estimation of GPP in-situ. A linear model was performed to evaluate the relation between NDVI with GPP and, EVI with GPP estimated in-situ.</p>
+<p>The clean data sets from MODIS products were used here altogether with the GPP data set with the estimations per month from Santa Rosa National Park.</p>
 <h4 id="modis-ndvi-and-gpp-in-situ">MODIS NDVI and GPP in-situ</h4>
-<h5 id="linear-model">Linear model</h5>
 <p>Given that observations for GPP in-situ are one per month and we have in most cases for the same period of time, more than one observation from MODIS, I have summarized MODIS values with the mean per month. A linear regression was performed and residuals were evaluated to look for patterns.</p>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -2263,7 +2132,8 @@ Show code
 Show code
 </summary>
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ndvi_gpp_in_situ</span> <span class='op'>&lt;-</span> <span class='va'>modis_indices_clean</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>## Prepare data for model</span>
+<span class='va'>ndvi_gpp_in_situ</span> <span class='op'>&lt;-</span> <span class='va'>modis_indices_clean</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='fu'>zoo</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/zoo/man/yearmon.html'>as.yearmon</a></span><span class='op'>(</span><span class='va'>date</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='op'>(</span>
     ndvi_mean <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>ndvi</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
@@ -2272,45 +2142,71 @@ Show code
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename</a></span><span class='op'>(</span>month_year <span class='op'>=</span> <span class='va'>`zoo::as.yearmon(date)`</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>full_join</a></span><span class='op'>(</span><span class='va'>modis_in_situ_gpp</span>, by <span class='op'>=</span> <span class='st'>"month_year"</span><span class='op'>)</span>
 
-<span class='co'>## Create the linear model and check results</span>
+<span class='co'>## Create the linear models and check results</span>
 <span class='va'>ndvi_gpp_model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='va'>average_gpp</span> <span class='op'>~</span> <span class='va'>ndvi_mean</span>, data <span class='op'>=</span> <span class='va'>ndvi_gpp_in_situ</span><span class='op'>)</span>
+<span class='va'>evi_gpp_model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='va'>average_gpp</span> <span class='op'>~</span> <span class='va'>evi_mean</span>, data <span class='op'>=</span> <span class='va'>ndvi_gpp_in_situ</span><span class='op'>)</span>
+
+<span class='co'>## Report models results</span>
 <span class='co'># summary(ndvi_gpp_model)</span>
 <span class='co'># report(ndvi_gpp_model)</span>
+<span class='co'># plot(evi_gpp_model)</span>
+<span class='co'># summary(evi_gpp_model)</span>
+<span class='co'># report(evi_gpp_model)</span>
 </code></pre>
 </div>
 </details>
 </div>
-<p>I fitted a linear model (estimated using OLS) to predict GPP in-situ with MODIS NDVI product (formula: GPP in-situ ~ NDVI). The model explains a statistically significant and substantial proportion of variance (R2 = 0.84, F(1, 28) = 152.26, p &lt; .001, adj. R2 = 0.84). The model’s intercept, corresponding to NDVI = 0, is at -0.70 (95% CI [-0.89, -0.50], t(28) = -7.35, p &lt; .001). Within this model:</p>
-<ul>
-<li>The effect of NDVI is statistically significant and positive (beta = 1.66, 95% CI [1.38, 1.94], t(28) = 12.34, p &lt; .001; Std. beta = 0.92, 95% CI [0.77, 1.07])</li>
-</ul>
-<p>Standardized parameters were obtained by fitting the model on a standardized version of the data set. 95% Confidence Intervals (CIs) and p-values were computed using the Wald approximation.</p>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ndvi_gpp_in_situ</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ndvi_gpp</span> <span class='op'>&lt;-</span> <span class='va'>ndvi_gpp_in_situ</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>ndvi_mean</span>, y <span class='op'>=</span> <span class='va'>average_gpp</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"#FF3A1D"</span>, size <span class='op'>=</span> <span class='fl'>3.5</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='op'>(</span>method <span class='op'>=</span> <span class='st'>"lm"</span>, color <span class='op'>=</span> <span class='st'>"#4E5C68"</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_light</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"MODIS NDVI"</span>, y <span class='op'>=</span> <span class='st'>"GPP (mg m-2 s-1)"</span><span class='op'>)</span>
+
+<span class='va'>evi_gpp</span> <span class='op'>&lt;-</span> <span class='va'>ndvi_gpp_in_situ</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>evi_mean</span>, y <span class='op'>=</span> <span class='va'>average_gpp</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"#FF3A1D"</span>, size <span class='op'>=</span> <span class='fl'>3.5</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='op'>(</span>method <span class='op'>=</span> <span class='st'>"lm"</span>, color <span class='op'>=</span> <span class='st'>"#4E5C68"</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_light</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"MODIS EVI"</span>, y <span class='op'>=</span> <span class='st'>"GPP (mg m-2 s-1)"</span><span class='op'>)</span>
+
+<span class='co'>## Arrange both plots in one figure:</span>
+<span class='fu'><a href='https://wilkelab.org/cowplot/reference/plot_grid.html'>plot_grid</a></span><span class='op'>(</span><span class='va'>ndvi_gpp</span>, <span class='va'>evi_gpp</span>, labels <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'A'</span>, <span class='st'>'B'</span><span class='op'>)</span>, label_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span>
 </code></pre>
 </div>
 </details>
-<p><img src="results_files/figure-html5/unnamed-chunk-3-1.png" width="624" /></p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-1"></span>
+<img src="results_files/figure-html5/unnamed-chunk-1-1.png" alt="Relation between NDVI and EVI indices derived from MODIS with GPP estimated in-situ" width="624" />
+<p class="caption">
+Figure 1: Relation between NDVI and EVI indices derived from MODIS with GPP estimated in-situ
+</p>
 </div>
-<h5 id="residuals">Residuals</h5>
-<p>Where do we have the largest residuals? Is there a patter between the largest and smallest residuals?</p>
-<div class="layout-chunk" data-layout="l-body">
+</div>
+<p>I fitted a linear model (estimated using OLS) to predict GPP in-situ with MODIS NDVI product (formula: GPP in-situ ~ NDVI) as shown in Figure 1.A. The model explains a statistically significant and substantial proportion of variance (R2 = 0.84, F(1, 28) = 152.26, p &lt; .001, adj. R2 = 0.84). The model’s intercept, corresponding to NDVI = 0, is at -0.70 (95% CI [-0.89, -0.50], t(28) = -7.35, p &lt; .001). Within this model:</p>
+<ul>
+<li>The effect of NDVI is statistically significant and positive (beta = 1.66, 95% CI [1.38, 1.94], t(28) = 12.34, p &lt; .001; Std. beta = 0.92, 95% CI [0.77, 1.07])</li>
+</ul>
+<p>A second linear model was fitted (estimated using OLS) to predict in-situ GPP with MODIS EVI product (formula: GPP in-situ ~ EVI) as shown in Figure 1.B. The model explains a statistically significant and substantial proportion of variance (R2 = 0.79, F(1, 28) = 102.72, p &lt; .001, adj. R2 = 0.78). The model’s intercept, corresponding to EVI = 0, is at -0.40 (95% CI [-0.58, -0.22], t(28) = -4.61, p &lt; .001). Within this model:</p>
+<ul>
+<li>The effect of EVI is statistically significant and positive (beta = 1.95, 95% CI [1.56, 2.35], t(28) = 10.14, p &lt; .001; Std. beta = 0.89, 95% CI [0.71, 1.07])</li>
+</ul>
+<p>For both models, standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using the Wald approximation.</p>
+<h5 id="residuals-exploration">Residuals exploration</h5>
+<p>The residuals from both linear models were used to explore any further patterns in time. Specifically, if there are months in which residuals are larger or smaller consistently along the time period of this study.</p>
+<div class="layout-chunk" data-layout="l-body-outset">
 <details>
 <summary>
 Show code
 </summary>
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>## Obtain data used in the model (without NA's) to paste residuals and explore</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>## GPP ~ NDVI residuals %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class='co'>## Obtain data used in the model (without NA's) to paste residuals and explore</span>
 <span class='co'>## if there is a pattern of largest residuals in specific months</span>
 <span class='va'>model_observations</span> <span class='op'>&lt;-</span> <span class='va'>ndvi_gpp_model</span><span class='op'>[[</span><span class='st'>"model"</span><span class='op'>]</span><span class='op'>]</span>
 <span class='va'>model_residuals</span> <span class='op'>&lt;-</span> <span class='va'>ndvi_gpp_model</span><span class='op'>[[</span><span class='st'>"residuals"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
@@ -2318,13 +2214,13 @@ Show code
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename</a></span><span class='op'>(</span><span class='st'>"residuals"</span> <span class='op'>=</span> <span class='st'>"."</span><span class='op'>)</span>
 
 <span class='co'># Create dataset</span>
-<span class='va'>observations_residuals</span> <span class='op'>&lt;-</span> <span class='va'>model_observations</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+<span class='va'>ndvi_observations_residuals</span> <span class='op'>&lt;-</span> <span class='va'>model_observations</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='op'>(</span><span class='va'>ndvi_gpp_in_situ</span>, by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"average_gpp"</span>, <span class='st'>"ndvi_mean"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>average_modis_gpp</span>, <span class='op'>-</span><span class='va'>evi_mean</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_cols</a></span><span class='op'>(</span><span class='va'>model_residuals</span><span class='op'>)</span>
 
 <span class='co'>## Plot with distances from zero:</span>
-<span class='va'>observations_residuals</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+<span class='va'>ndvi_residuals</span> <span class='op'>&lt;-</span> <span class='va'>ndvi_observations_residuals</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>residuals <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='va'>residuals</span>, digits <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>date <span class='op'>=</span> <span class='fu'>zoo</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/zoo/man/yearmon.html'>as.Date</a></span><span class='op'>(</span><span class='va'>month_year</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>date</span>, y <span class='op'>=</span> <span class='va'>residuals</span>, label <span class='op'>=</span> <span class='va'>residuals</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> 
@@ -2338,43 +2234,73 @@ Show code
                    xend <span class='op'>=</span> <span class='va'>date</span><span class='op'>)</span>, 
                color <span class='op'>=</span> <span class='st'>"#75AADB"</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_text</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"white"</span>, size <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>y <span class='op'>=</span> <span class='st'>"Residuals values linear relation GPP ~ MODIS_NDVI"</span>,
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>y <span class='op'>=</span> <span class='st'>"Residuals GPP ~ MODIS_NDVI"</span>,
        x <span class='op'>=</span> <span class='st'>"Date"</span><span class='op'>)</span> <span class='op'>+</span> 
   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/lims.html'>ylim</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>0.3</span>, <span class='fl'>0.3</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_light</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_light</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/coord_flip.html'>coord_flip</a></span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='co'>## GPP ~ EVI residuals %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class='co'>## Obtain data used in the model (without NA's) to paste residuals and explore</span>
+<span class='co'>## if there is a pattern of largest residuals in specific months</span>
+<span class='va'>model_observations</span> <span class='op'>&lt;-</span> <span class='va'>evi_gpp_model</span><span class='op'>[[</span><span class='st'>"model"</span><span class='op'>]</span><span class='op'>]</span>
+<span class='va'>model_residuals</span> <span class='op'>&lt;-</span> <span class='va'>evi_gpp_model</span><span class='op'>[[</span><span class='st'>"residuals"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://rdrr.io/r/base/as.data.frame.html'>as.data.frame</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename</a></span><span class='op'>(</span><span class='st'>"residuals"</span> <span class='op'>=</span> <span class='st'>"."</span><span class='op'>)</span>
+
+<span class='co'># Create dataset</span>
+<span class='va'>evi_observations_residuals</span> <span class='op'>&lt;-</span> <span class='va'>model_observations</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='op'>(</span><span class='va'>ndvi_gpp_in_situ</span>, by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"average_gpp"</span>, <span class='st'>"evi_mean"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>average_modis_gpp</span>, <span class='op'>-</span><span class='va'>evi_mean</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_cols</a></span><span class='op'>(</span><span class='va'>model_residuals</span><span class='op'>)</span>
+
+<span class='co'>## Plot with distances from zero:</span>
+<span class='va'>evi_residuals</span> <span class='op'>&lt;-</span> <span class='va'>evi_observations_residuals</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>residuals <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='va'>residuals</span>, digits <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>date <span class='op'>=</span> <span class='fu'>zoo</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/zoo/man/yearmon.html'>as.Date</a></span><span class='op'>(</span><span class='va'>month_year</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>date</span>, y <span class='op'>=</span> <span class='va'>residuals</span>, label <span class='op'>=</span> <span class='va'>residuals</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> 
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span>stat <span class='op'>=</span> <span class='st'>'identity'</span>, color <span class='op'>=</span> <span class='st'>"#75AADB"</span>, size <span class='op'>=</span> <span class='fl'>9</span><span class='op'>)</span>  <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_abline.html'>geom_hline</a></span><span class='op'>(</span>yintercept <span class='op'>=</span> <span class='fl'>0</span>, color <span class='op'>=</span> <span class='st'>"#4E5C68"</span>,
+             size <span class='op'>=</span> <span class='fl'>0.5</span>, linetype <span class='op'>=</span> <span class='st'>"dashed"</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_date.html'>scale_x_date</a></span><span class='op'>(</span>date_labels <span class='op'>=</span> <span class='st'>"%b-%Y"</span>,  date_breaks <span class='op'>=</span> <span class='st'>"2 month"</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_segment.html'>geom_segment</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>y <span class='op'>=</span> <span class='fl'>0</span>, 
+                   x <span class='op'>=</span> <span class='va'>date</span>, 
+                   yend <span class='op'>=</span> <span class='va'>residuals</span>, 
+                   xend <span class='op'>=</span> <span class='va'>date</span><span class='op'>)</span>, 
+               color <span class='op'>=</span> <span class='st'>"#75AADB"</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_text</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"white"</span>, size <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>y <span class='op'>=</span> <span class='st'>"Residuals GPP ~ MODIS_EVI"</span>,
+       x <span class='op'>=</span> <span class='st'>"Date"</span><span class='op'>)</span> <span class='op'>+</span> 
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/lims.html'>ylim</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>0.3</span>, <span class='fl'>0.3</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_light</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/coord_flip.html'>coord_flip</a></span><span class='op'>(</span><span class='op'>)</span> 
+
+<span class='co'>## Arrange both plots in one figure:</span>
+<span class='fu'><a href='https://wilkelab.org/cowplot/reference/plot_grid.html'>plot_grid</a></span><span class='op'>(</span><span class='va'>ndvi_residuals</span>, <span class='va'>evi_residuals</span>, labels <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'A'</span>, <span class='st'>'B'</span><span class='op'>)</span>, label_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span>
 </code></pre>
 </div>
 </details>
-<p><img src="results_files/figure-html5/unnamed-chunk-4-1.png" width="624" /></p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-2"></span>
+<img src="results_files/figure-html5/unnamed-chunk-2-1.png" alt="Residuals values for linear models GPP ~ NDVI (A) and, GPP ~ EVI (B) for registered months" width="624" />
+<p class="caption">
+Figure 2: Residuals values for linear models GPP ~ NDVI (A) and, GPP ~ EVI (B) for registered months
+</p>
 </div>
+</div>
+<p>Figure 2 shows the residuals values derived from the linear model between GPP with NDVI (A), and GPP with EVI (B). No patterns or consistency between months can be inferred from Figure 2.</p>
 <h5 id="residuals-and-meteorological-variables">Residuals and meteorological variables</h5>
-<p>Now that we have which residuals are larger in which months, we can try to validate if there is a common pattern in those months with the largest residuals.</p>
+<p>Given that there is no clear pattern in the values of the residuals with just the months and years, I made a comparison between the values of the residuals with meteorological values per month.</p>
+<ul>
+<li>Do we have meteorological characteristics that are related to larger or shorter residuals values?</li>
+</ul>
+<p>In order to check this, a quadratic function was applied to residuals values so no negative values were in the data set.</p>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>## Table with months with higher residuals</span>
-<span class='co'>## Cuadratic formula to eliminate negative values</span>
-<span class='va'>observations_residuals</span> <span class='op'>&lt;-</span> <span class='va'>observations_residuals</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>positive_residuals <span class='op'>=</span> <span class='va'>residuals</span> <span class='op'>^</span> <span class='fl'>2</span>,
-         positive_residuals <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='va'>positive_residuals</span>, digits <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>month_year</span>, <span class='va'>positive_residuals</span>, <span class='va'>residuals</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='op'>(</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/desc.html'>desc</a></span><span class='op'>(</span><span class='va'>positive_residuals</span><span class='op'>)</span><span class='op'>)</span>
-</code></pre>
-</div>
-</details>
-</div>
-<p>Now that we have the transformation of the residuals (all positive) I can try to compare these values with the means of meteorological values per month to check if there is a relation.</p>
-<div class="layout-chunk" data-layout="l-body">
-<details>
-<summary>
-Show code
-</summary>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>## Take biomet variables to validate if there is a similar pattern:</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># Summarise biomet %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
 <span class='va'>biomet_summarized</span> <span class='op'>&lt;-</span> <span class='va'>biomet</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='fu'>zoo</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/zoo/man/yearmon.html'>as.yearmon</a></span><span class='op'>(</span><span class='va'>date</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='op'>(</span>
@@ -2388,137 +2314,72 @@ Show code
   <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename</a></span><span class='op'>(</span>month_year <span class='op'>=</span> <span class='va'>`zoo::as.yearmon(date)`</span><span class='op'>)</span>
 
-<span class='va'>check</span> <span class='op'>&lt;-</span> <span class='va'>observations_residuals</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='op'>(</span><span class='va'>biomet_summarized</span>, by <span class='op'>=</span> <span class='st'>"month_year"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>month_year</span><span class='op'>)</span> 
-
-<span class='co'># library(PerformanceAnalytics)</span>
-<span class='co'># chart.Correlation(check, histogram = TRUE, method = "pearson")</span>
-<span class='co'>## Los residuales comparados parecen solo relacionarse con LE.</span>
-</code></pre>
-</div>
-</details>
-</div>
-<h4 id="modis-evi-and-gpp-in-situ">MODIS EVI and GPP in-situ?</h4>
-<h5 id="linear-model-1">Linear model</h5>
-<div class="layout-chunk" data-layout="l-body">
-<details>
-<summary>
-Show code
-</summary>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># I already have ndvi_gpp_in_situ object</span>
-
-<span class='co'>## Create the linear model and check results</span>
-<span class='va'>evi_gpp_model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='va'>average_gpp</span> <span class='op'>~</span> <span class='va'>evi_mean</span>, data <span class='op'>=</span> <span class='va'>ndvi_gpp_in_situ</span><span class='op'>)</span>
-<span class='co'># plot(evi_gpp_model)</span>
-<span class='co'># summary(evi_gpp_model)</span>
-<span class='co'># report(evi_gpp_model)</span>
-</code></pre>
-</div>
-</details>
-</div>
-<p>We fitted a linear model (estimated using OLS) to predict in-situ GPP with MODIS EVI product (formula: GPP in-situ ~ EVI). The model explains a statistically significant and substantial proportion of variance (R2 = 0.79, F(1, 28) = 102.72, p &lt; .001, adj. R2 = 0.78). The model’s intercept, corresponding to EVI = 0, is at -0.40 (95% CI [-0.58, -0.22], t(28) = -4.61, p &lt; .001). Within this model:</p>
-<ul>
-<li>The effect of EVI is statistically significant and positive (beta = 1.95, 95% CI [1.56, 2.35], t(28) = 10.14, p &lt; .001; Std. beta = 0.89, 95% CI [0.71, 1.07])</li>
-</ul>
-<p>Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using the Wald approximation.</p>
-<div class="layout-chunk" data-layout="l-body">
-<details>
-<summary>
-Show code
-</summary>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ndvi_gpp_in_situ</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>evi_mean</span>, y <span class='op'>=</span> <span class='va'>average_gpp</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"#FF3A1D"</span>, size <span class='op'>=</span> <span class='fl'>3.5</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='op'>(</span>method <span class='op'>=</span> <span class='st'>"lm"</span>, color <span class='op'>=</span> <span class='st'>"#4E5C68"</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_light</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"MODIS NDVI"</span>, y <span class='op'>=</span> <span class='st'>"GPP (mg m-2 s-1)"</span><span class='op'>)</span>
-</code></pre>
-</div>
-</details>
-<p><img src="results_files/figure-html5/unnamed-chunk-8-1.png" width="624" /></p>
-</div>
-<h5 id="residuals-1">Residuals</h5>
-<p>Where do we have the largest residuals? Is there a patter between the largest and smallest residuals?</p>
-<div class="layout-chunk" data-layout="l-body">
-<details>
-<summary>
-Show code
-</summary>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>## Obtain data used in the model (without NA's) to paste residuals and explore</span>
-<span class='co'>## if there is a pattern of largest residuals in specific months</span>
-<span class='va'>model_observations</span> <span class='op'>&lt;-</span> <span class='va'>evi_gpp_model</span><span class='op'>[[</span><span class='st'>"model"</span><span class='op'>]</span><span class='op'>]</span>
-<span class='va'>model_residuals</span> <span class='op'>&lt;-</span> <span class='va'>evi_gpp_model</span><span class='op'>[[</span><span class='st'>"residuals"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://rdrr.io/r/base/as.data.frame.html'>as.data.frame</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename</a></span><span class='op'>(</span><span class='st'>"residuals"</span> <span class='op'>=</span> <span class='st'>"."</span><span class='op'>)</span>
-
-<span class='co'># Create dataset</span>
-<span class='va'>observations_residuals</span> <span class='op'>&lt;-</span> <span class='va'>model_observations</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='op'>(</span><span class='va'>ndvi_gpp_in_situ</span>, by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"average_gpp"</span>, <span class='st'>"evi_mean"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>average_modis_gpp</span>, <span class='op'>-</span><span class='va'>evi_mean</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_cols</a></span><span class='op'>(</span><span class='va'>model_residuals</span><span class='op'>)</span>
-
-<span class='co'>## Plot with distances from zero:</span>
-<span class='va'>observations_residuals</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>residuals <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='va'>residuals</span>, digits <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>date <span class='op'>=</span> <span class='fu'>zoo</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/zoo/man/yearmon.html'>as.Date</a></span><span class='op'>(</span><span class='va'>month_year</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>date</span>, y <span class='op'>=</span> <span class='va'>residuals</span>, label <span class='op'>=</span> <span class='va'>residuals</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> 
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span>stat <span class='op'>=</span> <span class='st'>'identity'</span>, color <span class='op'>=</span> <span class='st'>"#75AADB"</span>, size <span class='op'>=</span> <span class='fl'>9</span><span class='op'>)</span>  <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_abline.html'>geom_hline</a></span><span class='op'>(</span>yintercept <span class='op'>=</span> <span class='fl'>0</span>, color <span class='op'>=</span> <span class='st'>"#4E5C68"</span>,
-             size <span class='op'>=</span> <span class='fl'>0.5</span>, linetype <span class='op'>=</span> <span class='st'>"dashed"</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_date.html'>scale_x_date</a></span><span class='op'>(</span>date_labels <span class='op'>=</span> <span class='st'>"%b-%Y"</span>,  date_breaks <span class='op'>=</span> <span class='st'>"2 month"</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_segment.html'>geom_segment</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>y <span class='op'>=</span> <span class='fl'>0</span>, 
-                   x <span class='op'>=</span> <span class='va'>date</span>, 
-                   yend <span class='op'>=</span> <span class='va'>residuals</span>, 
-                   xend <span class='op'>=</span> <span class='va'>date</span><span class='op'>)</span>, 
-               color <span class='op'>=</span> <span class='st'>"#75AADB"</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_text</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"white"</span>, size <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>y <span class='op'>=</span> <span class='st'>"Residuals values linear relation GPP ~ MODIS_EVI"</span>,
-       x <span class='op'>=</span> <span class='st'>"Date"</span><span class='op'>)</span> <span class='op'>+</span> 
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/lims.html'>ylim</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>0.3</span>, <span class='fl'>0.3</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_light</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/coord_flip.html'>coord_flip</a></span><span class='op'>(</span><span class='op'>)</span>
-</code></pre>
-</div>
-</details>
-<p><img src="results_files/figure-html5/unnamed-chunk-9-1.png" width="624" /></p>
-</div>
-<h5 id="residuals-and-meteorological-variables-1">Residuals and meteorological variables</h5>
-<p>Now that we have which residuals are larger in which months, we can try to validate if there is a common pattern in those months with the largest residuals.</p>
-<div class="layout-chunk" data-layout="l-body">
-<details>
-<summary>
-Show code
-</summary>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>## Table with months with higher residuals</span>
+<span class='co'># NDVI BIOMET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class='co'>## Table with months with higher residuals</span>
 <span class='co'>## Cuadratic formula to eliminate negative values</span>
-<span class='va'>observations_residuals</span> <span class='op'>&lt;-</span> <span class='va'>observations_residuals</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+<span class='va'>observations_residuals</span> <span class='op'>&lt;-</span> <span class='va'>ndvi_observations_residuals</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>positive_residuals <span class='op'>=</span> <span class='va'>residuals</span> <span class='op'>^</span> <span class='fl'>2</span>,
          positive_residuals <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='va'>positive_residuals</span>, digits <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>month_year</span>, <span class='va'>positive_residuals</span>, <span class='va'>residuals</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='op'>(</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/desc.html'>desc</a></span><span class='op'>(</span><span class='va'>positive_residuals</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='va'>ndvi_biomet</span> <span class='op'>&lt;-</span> <span class='va'>observations_residuals</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='op'>(</span><span class='va'>biomet_summarized</span>, by <span class='op'>=</span> <span class='st'>"month_year"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>month_year</span>, <span class='op'>-</span><span class='va'>positive_residuals</span><span class='op'>)</span> 
+
+<span class='co'># library(PerformanceAnalytics)</span>
+<span class='co'># chart.Correlation(check, histogram = TRUE, method = "pearson")</span>
+<span class='co'>## Los residuales comparados parecen solo relacionarse con LE.</span>
+
+<span class='co'># EVI BIOMET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% </span>
+<span class='co'>## Table with months with higher residuals</span>
+<span class='co'>## Cuadratic formula to eliminate negative values</span>
+<span class='va'>observations_residuals</span> <span class='op'>&lt;-</span> <span class='va'>evi_observations_residuals</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>positive_residuals <span class='op'>=</span> <span class='va'>residuals</span> <span class='op'>^</span> <span class='fl'>2</span>,
+         positive_residuals <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='va'>positive_residuals</span>, digits <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>month_year</span>, <span class='va'>positive_residuals</span>, <span class='va'>residuals</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='op'>(</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/desc.html'>desc</a></span><span class='op'>(</span><span class='va'>positive_residuals</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='co'>## Take biomet variables to validate if there is a similar pattern:</span>
+<span class='co'># biomet_summarized is already a created object.</span>
+<span class='va'>evi_biomet</span> <span class='op'>&lt;-</span> <span class='va'>observations_residuals</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='op'>(</span><span class='va'>biomet_summarized</span>, by <span class='op'>=</span> <span class='st'>"month_year"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>month_year</span>, <span class='op'>-</span><span class='va'>positive_residuals</span><span class='op'>)</span> 
+
+<span class='co'>## Exploratory PCA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class='co'># For EVI</span>
+<span class='va'>biomet_pca</span> <span class='op'>&lt;-</span> <span class='va'>evi_biomet</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='co'># mutate(month_year = as.character(month_year)) %&gt;% </span>
+  <span class='co'># select(-date, -year, -do_y, -hour) %&gt;% </span>
+  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://rdrr.io/r/stats/princomp.html'>princomp</a></span><span class='op'>(</span>cor <span class='op'>=</span> <span class='cn'>T</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/stats/biplot.html'>biplot</a></span><span class='op'>(</span><span class='va'>biomet_pca</span><span class='op'>)</span>
 </code></pre>
 </div>
 </details>
-</div>
-<p>Now that we have the transformation of the residuals (all positive) I can try to compare these values with the means of meteorological values per month to check if there is a relation.</p>
-<div class="layout-chunk" data-layout="l-body">
+<img src="results_files/figure-html5/unnamed-chunk-3-1.png" width="624" />
 <details>
 <summary>
 Show code
 </summary>
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>## Take biomet variables to validate if there is a similar pattern:</span>
-<span class='co'># biomet_summarized is already a created object.</span>
-<span class='va'>evi_biomet</span> <span class='op'>&lt;-</span> <span class='va'>observations_residuals</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='op'>(</span><span class='va'>biomet_summarized</span>, by <span class='op'>=</span> <span class='st'>"month_year"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>month_year</span><span class='op'>)</span> 
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># For NDVI</span>
+<span class='va'>biomet_pca</span> <span class='op'>&lt;-</span> <span class='va'>ndvi_biomet</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://rdrr.io/r/stats/princomp.html'>princomp</a></span><span class='op'>(</span>cor <span class='op'>=</span> <span class='cn'>T</span><span class='op'>)</span>
 
-<span class='co'># library(PerformanceAnalytics)</span>
+<span class='fu'><a href='https://rdrr.io/r/stats/biplot.html'>biplot</a></span><span class='op'>(</span><span class='va'>biomet_pca</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<img src="results_files/figure-html5/unnamed-chunk-3-2.png" width="624" />
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># library(PerformanceAnalytics)</span>
 <span class='co'># chart.Correlation(evi_biomet, histogram = TRUE, method = "pearson")</span>
 <span class='co'>## Los residuales comparados parecen solo relacionarse con LE (igual que NDVI)</span>
 </code></pre>
@@ -2528,49 +2389,6 @@ Show code
 <h3 id="which-meteorological-variable-have-more-influence-in-gpp-in-situ">Which meteorological variable have more influence in GPP in-situ?</h3>
 <div class="layout-chunk" data-layout="l-body">
 
-</div>
-<h3 id="modis-ndvi-evi-gpp-trends-over-time">MODIS NDVI, EVI &amp; GPP trends over time</h3>
-<div class="layout-chunk" data-layout="l-body">
-<details>
-<summary>
-Show code
-</summary>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># Plot with both GPP's</span>
-<span class='va'>rec_monthly_gpp</span> <span class='op'>&lt;-</span> <span class='va'>monthly_gpp</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>date</span>, <span class='va'>average_gpp</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename</a></span><span class='op'>(</span>gpp <span class='op'>=</span> <span class='va'>average_gpp</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>origin <span class='op'>=</span> <span class='st'>"in_situ"</span><span class='op'>)</span>
-
-<span class='va'>rec_modis_gpp</span> <span class='op'>&lt;-</span> <span class='va'>modis_gpp</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>date</span>, <span class='va'>gpp</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>date <span class='op'>=</span> <span class='fu'><a href='https://lubridate.tidyverse.org/reference/round_date.html'>floor_date</a></span><span class='op'>(</span><span class='va'>date</span>, <span class='st'>"month"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>date</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='op'>(</span>
-    gpp <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>gpp</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-  <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>origin <span class='op'>=</span> <span class='st'>"modis"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>date</span> <span class='op'>&gt;</span> <span class='fu'><a href='https://lubridate.tidyverse.org/reference/ymd.html'>ymd</a></span><span class='op'>(</span><span class='st'>"2013-04-30"</span><span class='op'>)</span><span class='op'>)</span>
-
-<span class='va'>rec_both</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_rows</a></span><span class='op'>(</span><span class='va'>rec_monthly_gpp</span>, <span class='va'>rec_modis_gpp</span><span class='op'>)</span>
-
-<span class='co'>## Correlation trends between both GPP's`</span>
-<span class='va'>rec_both</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>date</span>, y <span class='op'>=</span> <span class='va'>gpp</span>, group <span class='op'>=</span> <span class='va'>origin</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='va'>origin</span><span class='op'>)</span>, size <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_linedraw</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_date.html'>scale_x_date</a></span><span class='op'>(</span>date_labels <span class='op'>=</span> <span class='st'>"%b%Y"</span>, breaks <span class='op'>=</span> <span class='st'>"months"</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='op'>(</span>axis.text.x <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text</a></span><span class='op'>(</span>angle <span class='op'>=</span> <span class='fl'>70</span>, h <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"Date"</span>, y <span class='op'>=</span> <span class='st'>"GPP (mgm-2s-1)"</span>, color <span class='op'>=</span> <span class='st'>"GPP source"</span><span class='op'>)</span>
-</code></pre>
-</div>
-</details>
-<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-13"></span>
-<img src="results_files/figure-html5/unnamed-chunk-13-1.png" alt="GPP trends over the years for MODIS and in-situ data. Despite having similar trends, range is higher for in-situ data than the MODIS derived GPP" width="624" />
-<p class="caption">
-Figure 2: GPP trends over the years for MODIS and in-situ data. Despite having similar trends, range is higher for in-situ data than the MODIS derived GPP
-</p>
-</div>
 </div>
 <h3 id="pca-for-meteorological-variables">PCA for meteorological variables</h3>
 <p>TODO: Implement nice PCA plot!!!</p>

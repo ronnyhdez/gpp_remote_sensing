@@ -87,6 +87,27 @@ modis_indices <-
          pixel_reliability = mod13q1_006_250m_16_days_pixel_reliability,
          reliability_modland_description =
            mod13q1_006_250m_16_days_pixel_reliability_modland_description)
+
+## Filter observations with good quality
+## This takes from 94 observations to 53 observations. Remove 41 observations
+modis_indices_clean <- modis_indices %>% 
+  filter(reliability_modland_description == "Good data, use with confidence") %>% 
+  select(date, ndvi, evi) #%>% 
+  # mutate(week = week(date),
+  #        year = year(date))
+
+## Filter observations with good quality
+## This takes from 183 observations to 114. Remove 69 observations.
+modis_gpp_clean <- modis_gpp %>% 
+  filter(modland_description == "Good quality",
+         cloud_state_description == "Significant clouds NOT present (clear)",
+         scf_qc_description == "Very best possible") %>% 
+  select(date, gpp) #%>% 
+  # mutate(week = week(date),
+  #        year = year(date))
+
+modis_join <- modis_gpp_clean %>% 
+  full_join(modis_indices_clean, by = c("date"))
 ```
 
 <!-- 5. Results (including Discussion ~500 words) -->
@@ -119,92 +140,16 @@ modis_indices <-
 
 ## Results
 
-### What is the relation between MODIS EVI NDVI & GPP products?
-
-We are using products from MODIS which are: EVI, NDVI and GPP. These are already
-calculated values that are available to users. These products comes with
-variables that flags low quality values. In this case we have a data set with
-flags for GPP and a data set with flags for the indices EVI and NDVI.
-
-All values with flags that advertised low quality data points were remove from
-both data sets. Then a pearson correlation was performed to explore the relation
-between GPP and NDVI, and GPP with EVI.
-
-```{r MODIS data quality filtering}
-## Filter observations with good quality
-## This takes from 94 observations to 53 observations. Remove 41 observations
-modis_indices_clean <- modis_indices %>% 
-  filter(reliability_modland_description == "Good data, use with confidence") %>% 
-  select(date, ndvi, evi) #%>% 
-  # mutate(week = week(date),
-  #        year = year(date))
-
-## Filter observations with good quality
-## This takes from 183 observations to 114. Remove 69 observations.
-modis_gpp_clean <- modis_gpp %>% 
-  filter(modland_description == "Good quality",
-         cloud_state_description == "Significant clouds NOT present (clear)",
-         scf_qc_description == "Very best possible") %>% 
-  select(date, gpp) #%>% 
-  # mutate(week = week(date),
-  #        year = year(date))
-
-modis_join <- modis_gpp_clean %>% 
-  full_join(modis_indices_clean, by = c("date"))
-```
-
-As validation for the relations between products from MODIS, I proceed to
-compare NDVI against GPP to check how is the relation between these variables.
-
-```{r, fig.cap = "Relation between NDVI and GPP products from MODIS for the Santa Rosa National Park"}
-#### Relation between NDVI and GPP from MODIS
-gpp_ndvi <- modis_join %>% 
-  ggplot(aes(x = ndvi, y = gpp)) +
-  geom_point(color = "#FF3A1D", size = 3.5) +
-  geom_smooth(method = "lm", color = "#4E5C68") +
-  theme_light(base_size = 12) +
-  # theme(axis.text.x = element_text(angle = 90, h = 1)) +
-  labs(x = "NDVI", y = "GPP (mgm-2s-1)")
-
-#### Relation between EVI and GPP from MODIS
-gpp_evi <- modis_join %>% 
-  ggplot(aes(x = evi, y = gpp)) +
-  geom_point(color = "#FF3A1D", size = 3.5) +
-  geom_smooth(method = "lm", color = "#4E5C68") +
-  theme_light(base_size = 12) +
-  # theme(axis.text.x = element_text(angle = 90, h = 1)) +
-  labs(x = "EVI", y = "GPP (mg m-2 s-1)")
-
-## Arrange both plots in one figure:
-plot_grid(gpp_ndvi, gpp_evi, labels = c('A', 'B'), label_size = 12)
-```
-
-```{r corr results MODIS products}
-ndvi_corr_test <- cor.test(modis_join$ndvi, modis_join$gpp)
-evi_corr_test <- cor.test(modis_join$evi, modis_join$gpp)
-
-# Check the report of the result
-# report(ndvi_corr_test)
-# report(evi_corr_test)
-```
-
-The Pearson's product-moment correlation between **NDVI and GPP** products from
-MODIS is positive and statistically significant. (r = 0.81, 95% CI [0.65, 0.90],
-t(34) = 8.01, p \< .001). For **EVI and GPP** the Pearson's product-moment
-correlation is is positive, and statistically significant (r = 0.70, 95% CI
-[0.48, 0.84], t(34) = 5.70, p \< .001)
-
--   NDVI have a higher positive correlation with GPP product from MODIS than
-    EVI.
-
 ### What is the relation between MODIS products and GPP estimated in-situ?
 
-Now that I checked the relation between the MODIS products, I can compared and
-evaluate the relation between the MODIS products with the GPP estimated in-situ.
+We have two indices derived from MODIS that can have a relation with the
+estimation of GPP in-situ. A linear model was performed to evaluate the 
+relation between NDVI with GPP and, EVI with GPP estimated in-situ.
+
 The clean data sets from MODIS products were used here altogether with the GPP
 data set with the estimations per month from Santa Rosa National Park.
 
-```{r corr_gpp_modis_in_situ}
+```{r corr_gpp_modis_in_situ, include = FALSE}
 average_gpp <- modis_gpp_clean %>% 
   group_by(zoo::as.yearmon(date)) %>% 
   summarise(
@@ -217,26 +162,26 @@ modis_in_situ_gpp <- monthly_gpp %>%
   select(month_year, average_gpp) %>% 
   full_join(average_gpp, by = "month_year")
 
-modis_in_situ_gpp %>% 
-  ggplot(aes(x = average_gpp, y = average_modis_gpp)) +
-  geom_point(color = "#FF3A1D", size = 3.5) +
-  geom_smooth(method = "lm", color = "#4E5C68") +
-  theme_light(base_size = 12) +
-  labs(x = "GPP (mg m-2 s-1)", y = "GPP (mg m-2 s-1)")
+# modis_in_situ_gpp %>% 
+#   ggplot(aes(x = average_gpp, y = average_modis_gpp)) +
+#   geom_point(color = "#FF3A1D", size = 3.5) +
+#   geom_smooth(method = "lm", color = "#4E5C68") +
+#   theme_light(base_size = 12) +
+#   labs(x = "GPP (mg m-2 s-1)", y = "GPP (mg m-2 s-1)")
 
-gpp_modis_in_situ <- cor.test(modis_in_situ_gpp$average_gpp,
-                              modis_in_situ_gpp$average_modis_gpp)
+# gpp_modis_in_situ <- cor.test(modis_in_situ_gpp$average_gpp,
+#                               modis_in_situ_gpp$average_modis_gpp)
 ```
 
 #### MODIS NDVI and GPP in-situ
 
-##### Linear model
 Given that observations for GPP in-situ are one per month and we have in most
 cases for the same period of time, more than one observation from MODIS, I have
 summarized MODIS values with the mean per month. A linear regression was
 performed and residuals were evaluated to look for patterns.
 
-```{r}
+```{r linear_models}
+## Prepare data for model
 ndvi_gpp_in_situ <- modis_indices_clean %>% 
   group_by(zoo::as.yearmon(date)) %>% 
   summarise(
@@ -246,42 +191,68 @@ ndvi_gpp_in_situ <- modis_indices_clean %>%
   rename(month_year = `zoo::as.yearmon(date)`) %>%
   full_join(modis_in_situ_gpp, by = "month_year")
 
-## Create the linear model and check results
+## Create the linear models and check results
 ndvi_gpp_model <- lm(average_gpp ~ ndvi_mean, data = ndvi_gpp_in_situ)
+evi_gpp_model <- lm(average_gpp ~ evi_mean, data = ndvi_gpp_in_situ)
+
+## Report models results
 # summary(ndvi_gpp_model)
 # report(ndvi_gpp_model)
+# plot(evi_gpp_model)
+# summary(evi_gpp_model)
+# report(evi_gpp_model)
 ```
 
-I fitted a linear model (estimated using OLS) to predict GPP in-situ with MODIS
-NDVI product (formula: GPP in-situ \~ NDVI). The model explains a statistically
-significant and substantial proportion of variance (R2 = 0.84, F(1, 28) =
-152.26, p \< .001, adj. R2 = 0.84). The model's intercept, corresponding to NDVI
-= 0, is at -0.70 (95% CI [-0.89, -0.50], t(28) = -7.35, p \< .001). Within this
-model:
-
--   The effect of NDVI is statistically significant and positive (beta = 1.66,
-    95% CI [1.38, 1.94], t(28) = 12.34, p \< .001; Std. beta = 0.92, 95% CI
-    [0.77, 1.07])
-
-Standardized parameters were obtained by fitting the model on a standardized
-version of the data set. 95% Confidence Intervals (CIs) and p-values were
-computed using the Wald approximation.
-
-```{r}
-ndvi_gpp_in_situ %>% 
+```{r fig.cap = "Relation between NDVI and EVI indices derived from MODIS with GPP estimated in-situ"}
+ndvi_gpp <- ndvi_gpp_in_situ %>% 
   ggplot(aes(x = ndvi_mean, y = average_gpp)) +
   geom_point(color = "#FF3A1D", size = 3.5) +
   geom_smooth(method = "lm", color = "#4E5C68") +
   theme_light(base_size = 12) +
   labs(x = "MODIS NDVI", y = "GPP (mg m-2 s-1)")
+
+evi_gpp <- ndvi_gpp_in_situ %>% 
+  ggplot(aes(x = evi_mean, y = average_gpp)) +
+  geom_point(color = "#FF3A1D", size = 3.5) +
+  geom_smooth(method = "lm", color = "#4E5C68") +
+  theme_light(base_size = 12) +
+  labs(x = "MODIS EVI", y = "GPP (mg m-2 s-1)")
+
+## Arrange both plots in one figure:
+plot_grid(ndvi_gpp, evi_gpp, labels = c('A', 'B'), label_size = 12)
 ```
 
-##### Residuals
+I fitted a linear model (estimated using OLS) to predict GPP in-situ with MODIS
+NDVI product (formula: GPP in-situ \~ NDVI) as shown in Figure 1.A. The model 
+explains a statistically significant and substantial proportion of variance 
+(R2 = 0.84, F(1, 28) = 152.26, p \< .001, adj. R2 = 0.84). The model's intercept, corresponding to NDVI = 0, is at -0.70 (95% CI [-0.89, -0.50], t(28) = -7.35,
+p \< .001). Within this model:
 
-Where do we have the largest residuals? Is there a patter between the largest
-and smallest residuals?
+-   The effect of NDVI is statistically significant and positive (beta = 1.66,
+    95% CI [1.38, 1.94], t(28) = 12.34, p \< .001; Std. beta = 0.92, 95% CI
+    [0.77, 1.07])
 
-```{r}
+A second linear model was fitted (estimated using OLS) to predict in-situ GPP 
+with MODIS EVI product (formula: GPP in-situ ~ EVI) as shown in Figure 1.B. The model explains a statistically significant and substantial proportion of variance (R2 = 0.79, F(1, 28) = 102.72,
+p < .001, adj. R2 = 0.78). The model's intercept, corresponding to EVI = 0, is 
+at -0.40 (95% CI [-0.58, -0.22], t(28) = -4.61, p < .001). Within this model:
+
+  - The effect of EVI is statistically significant and positive (beta = 1.95, 
+  95% CI [1.56, 2.35], t(28) = 10.14, p < .001; Std. beta = 0.89, 
+  95% CI [0.71, 1.07])
+
+For both models, standardized parameters were obtained by fitting the model on 
+a standardized version of the dataset. 95% Confidence Intervals (CIs) and 
+p-values were computed using the Wald approximation.
+
+##### Residuals exploration
+
+The residuals from both linear models were used to explore any further patterns
+in time. Specifically, if there are months in which residuals are larger or
+smaller consistently along the time period of this study.
+
+```{r fig.cap = "Residuals values for linear models GPP ~ NDVI (A) and, GPP ~ EVI (B) for registered months", layout="l-body-outset"}
+## GPP ~ NDVI residuals %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## Obtain data used in the model (without NA's) to paste residuals and explore
 ## if there is a pattern of largest residuals in specific months
 model_observations <- ndvi_gpp_model[["model"]]
@@ -290,13 +261,13 @@ model_residuals <- ndvi_gpp_model[["residuals"]] %>%
   rename("residuals" = ".")
 
 # Create dataset
-observations_residuals <- model_observations %>% 
+ndvi_observations_residuals <- model_observations %>% 
   left_join(ndvi_gpp_in_situ, by = c("average_gpp", "ndvi_mean")) %>% 
   select(-average_modis_gpp, -evi_mean) %>% 
   bind_cols(model_residuals)
 
 ## Plot with distances from zero:
-observations_residuals %>% 
+ndvi_residuals <- ndvi_observations_residuals %>% 
   mutate(residuals = round(residuals, digits = 3)) %>% 
   mutate(date = zoo::as.Date(month_year)) %>% 
   ggplot(aes(x = date, y = residuals, label = residuals)) + 
@@ -310,35 +281,69 @@ observations_residuals %>%
                    xend = date), 
                color = "#75AADB") +
   geom_text(color = "white", size = 2) +
-  labs(y = "Residuals values linear relation GPP ~ MODIS_NDVI",
+  labs(y = "Residuals GPP ~ MODIS_NDVI",
        x = "Date") + 
   ylim(-0.3, 0.3) +
-  theme_light(base_size = 12) +
+  theme_light(base_size = 10) +
   coord_flip()
+
+## GPP ~ EVI residuals %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+## Obtain data used in the model (without NA's) to paste residuals and explore
+## if there is a pattern of largest residuals in specific months
+model_observations <- evi_gpp_model[["model"]]
+model_residuals <- evi_gpp_model[["residuals"]] %>% 
+  as.data.frame() %>% 
+  rename("residuals" = ".")
+
+# Create dataset
+evi_observations_residuals <- model_observations %>% 
+  left_join(ndvi_gpp_in_situ, by = c("average_gpp", "evi_mean")) %>% 
+  select(-average_modis_gpp, -evi_mean) %>% 
+  bind_cols(model_residuals)
+
+## Plot with distances from zero:
+evi_residuals <- evi_observations_residuals %>% 
+  mutate(residuals = round(residuals, digits = 3)) %>% 
+  mutate(date = zoo::as.Date(month_year)) %>% 
+  ggplot(aes(x = date, y = residuals, label = residuals)) + 
+  geom_point(stat = 'identity', color = "#75AADB", size = 9)  +
+  geom_hline(yintercept = 0, color = "#4E5C68",
+             size = 0.5, linetype = "dashed") +
+  scale_x_date(date_labels = "%b-%Y",  date_breaks = "2 month") +
+  geom_segment(aes(y = 0, 
+                   x = date, 
+                   yend = residuals, 
+                   xend = date), 
+               color = "#75AADB") +
+  geom_text(color = "white", size = 2) +
+  labs(y = "Residuals GPP ~ MODIS_EVI",
+       x = "Date") + 
+  ylim(-0.3, 0.3) +
+  theme_light(base_size = 10) +
+  coord_flip() 
+
+## Arrange both plots in one figure:
+plot_grid(ndvi_residuals, evi_residuals, labels = c('A', 'B'), label_size = 12)
 ```
+
+Figure 2 shows the residuals values derived from the linear model between
+GPP with NDVI (A), and GPP with EVI (B). No patterns or consistency between
+months can be inferred from Figure 2.
 
 ##### Residuals and meteorological variables
 
-Now that we have which residuals are larger in which months, we can try to
-validate if there is a common pattern in those months with the largest
-residuals.
+Given that there is no clear pattern in the values of the residuals with just
+the months and years, I made a comparison between the values of the residuals
+with meteorological values per month.
+
+ - Do we have meteorological characteristics that are related to larger or 
+ shorter residuals values?
+
+In order to check this, a quadratic function was applied to residuals values so
+no negative values were in the data set.
 
 ```{r}
-## Table with months with higher residuals
-## Cuadratic formula to eliminate negative values
-observations_residuals <- observations_residuals %>% 
-  mutate(positive_residuals = residuals ^ 2,
-         positive_residuals = round(positive_residuals, digits = 3)) %>% 
-  select(month_year, positive_residuals, residuals) %>% 
-  arrange(desc(positive_residuals))
-```
-
-Now that we have the transformation of the residuals (all positive) I can try to
-compare these values with the means of meteorological values per month to check
-if there is a relation.
-
-```{r}
-## Take biomet variables to validate if there is a similar pattern:
+# Summarise biomet %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 biomet_summarized <- biomet %>% 
   group_by(zoo::as.yearmon(date)) %>% 
   summarise(
@@ -352,118 +357,54 @@ biomet_summarized <- biomet %>%
   ) %>% 
   rename(month_year = `zoo::as.yearmon(date)`)
 
-check <- observations_residuals %>% 
-  left_join(biomet_summarized, by = "month_year") %>% 
-  select(-month_year) 
-
-# library(PerformanceAnalytics)
-# chart.Correlation(check, histogram = TRUE, method = "pearson")
-## Los residuales comparados parecen solo relacionarse con LE.
-```
-
-#### MODIS EVI and GPP in-situ?
-
-##### Linear model
-
-```{r}
-# I already have ndvi_gpp_in_situ object
-
-## Create the linear model and check results
-evi_gpp_model <- lm(average_gpp ~ evi_mean, data = ndvi_gpp_in_situ)
-# plot(evi_gpp_model)
-# summary(evi_gpp_model)
-# report(evi_gpp_model)
-```
-
-We fitted a linear model (estimated using OLS) to predict in-situ GPP with MODIS
-EVI product (formula: GPP in-situ ~ EVI). The model explains a statistically significant and substantial proportion of variance (R2 = 0.79, F(1, 28) = 102.72,
-p < .001, adj. R2 = 0.78). The model's intercept, corresponding to EVI = 0, is 
-at -0.40 (95% CI [-0.58, -0.22], t(28) = -4.61, p < .001). Within this model:
-
-  - The effect of EVI is statistically significant and positive (beta = 1.95, 
-  95% CI [1.56, 2.35], t(28) = 10.14, p < .001; Std. beta = 0.89, 
-  95% CI [0.71, 1.07])
-
-Standardized parameters were obtained by fitting the model on a standardized 
-version of the dataset. 95% Confidence Intervals (CIs) and p-values were
-computed using the Wald approximation.
-
-```{r}
-ndvi_gpp_in_situ %>% 
-  ggplot(aes(x = evi_mean, y = average_gpp)) +
-  geom_point(color = "#FF3A1D", size = 3.5) +
-  geom_smooth(method = "lm", color = "#4E5C68") +
-  theme_light(base_size = 12) +
-  labs(x = "MODIS NDVI", y = "GPP (mg m-2 s-1)")
-```
-
-##### Residuals 
-
-Where do we have the largest residuals? Is there a patter between the largest
-and smallest residuals?
-
-```{r}
-## Obtain data used in the model (without NA's) to paste residuals and explore
-## if there is a pattern of largest residuals in specific months
-model_observations <- evi_gpp_model[["model"]]
-model_residuals <- evi_gpp_model[["residuals"]] %>% 
-  as.data.frame() %>% 
-  rename("residuals" = ".")
-
-# Create dataset
-observations_residuals <- model_observations %>% 
-  left_join(ndvi_gpp_in_situ, by = c("average_gpp", "evi_mean")) %>% 
-  select(-average_modis_gpp, -evi_mean) %>% 
-  bind_cols(model_residuals)
-
-## Plot with distances from zero:
-observations_residuals %>% 
-  mutate(residuals = round(residuals, digits = 3)) %>% 
-  mutate(date = zoo::as.Date(month_year)) %>% 
-  ggplot(aes(x = date, y = residuals, label = residuals)) + 
-  geom_point(stat = 'identity', color = "#75AADB", size = 9)  +
-  geom_hline(yintercept = 0, color = "#4E5C68",
-             size = 0.5, linetype = "dashed") +
-  scale_x_date(date_labels = "%b-%Y",  date_breaks = "2 month") +
-  geom_segment(aes(y = 0, 
-                   x = date, 
-                   yend = residuals, 
-                   xend = date), 
-               color = "#75AADB") +
-  geom_text(color = "white", size = 2) +
-  labs(y = "Residuals values linear relation GPP ~ MODIS_EVI",
-       x = "Date") + 
-  ylim(-0.3, 0.3) +
-  theme_light(base_size = 12) +
-  coord_flip()
-```
-
-##### Residuals and meteorological variables
-
-Now that we have which residuals are larger in which months, we can try to
-validate if there is a common pattern in those months with the largest
-residuals.
-
-```{r}
+# NDVI BIOMET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## Table with months with higher residuals
 ## Cuadratic formula to eliminate negative values
-observations_residuals <- observations_residuals %>% 
+observations_residuals <- ndvi_observations_residuals %>% 
   mutate(positive_residuals = residuals ^ 2,
          positive_residuals = round(positive_residuals, digits = 3)) %>% 
   select(month_year, positive_residuals, residuals) %>% 
   arrange(desc(positive_residuals))
-```
 
-Now that we have the transformation of the residuals (all positive) I can try to
-compare these values with the means of meteorological values per month to check
-if there is a relation.
+ndvi_biomet <- observations_residuals %>% 
+  left_join(biomet_summarized, by = "month_year") %>% 
+  select(-month_year, -positive_residuals) 
 
-```{r}
+# library(PerformanceAnalytics)
+# chart.Correlation(check, histogram = TRUE, method = "pearson")
+## Los residuales comparados parecen solo relacionarse con LE.
+
+# EVI BIOMET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+## Table with months with higher residuals
+## Cuadratic formula to eliminate negative values
+observations_residuals <- evi_observations_residuals %>% 
+  mutate(positive_residuals = residuals ^ 2,
+         positive_residuals = round(positive_residuals, digits = 3)) %>% 
+  select(month_year, positive_residuals, residuals) %>% 
+  arrange(desc(positive_residuals))
+
 ## Take biomet variables to validate if there is a similar pattern:
 # biomet_summarized is already a created object.
 evi_biomet <- observations_residuals %>% 
   left_join(biomet_summarized, by = "month_year") %>% 
-  select(-month_year) 
+  select(-month_year, -positive_residuals) 
+
+## Exploratory PCA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# For EVI
+biomet_pca <- evi_biomet %>% 
+  # mutate(month_year = as.character(month_year)) %>% 
+  # select(-date, -year, -do_y, -hour) %>% 
+  drop_na() %>% 
+  princomp(cor = T)
+
+biplot(biomet_pca)
+
+# For NDVI
+biomet_pca <- ndvi_biomet %>% 
+  drop_na() %>% 
+  princomp(cor = T)
+
+biplot(biomet_pca)
 
 # library(PerformanceAnalytics)
 # chart.Correlation(evi_biomet, histogram = TRUE, method = "pearson")
@@ -476,36 +417,6 @@ evi_biomet <- observations_residuals %>%
 
 ```
 
-### MODIS NDVI, EVI & GPP trends over time
-
-```{r fig.cap = "GPP trends over the years for MODIS and in-situ data. Despite having similar trends, range is higher for in-situ data than the MODIS derived GPP"}
-# Plot with both GPP's
-rec_monthly_gpp <- monthly_gpp %>% 
-  select(date, average_gpp) %>% 
-  rename(gpp = average_gpp) %>% 
-  mutate(origin = "in_situ")
-
-rec_modis_gpp <- modis_gpp %>% 
-  select(date, gpp) %>% 
-  mutate(date = floor_date(date, "month")) %>% 
-  group_by(date) %>% 
-  summarise(
-    gpp = mean(gpp, na.rm = TRUE)
-  ) %>% 
-  mutate(origin = "modis") %>% 
-  filter(date > ymd("2013-04-30"))
-
-rec_both <- bind_rows(rec_monthly_gpp, rec_modis_gpp)
-
-## Correlation trends between both GPP's`
-rec_both %>% 
-  ggplot(aes(x = date, y = gpp, group = origin)) +
-  geom_line(aes(color = origin), size = 1) +
-  theme_linedraw(base_size = 12) +
-  scale_x_date(date_labels = "%b%Y", breaks = "months") +
-  theme(axis.text.x = element_text(angle = 70, h = 1)) +
-  labs(x = "Date", y = "GPP (mgm-2s-1)", color = "GPP source")
-```
 
 ### PCA for meteorological variables
 
