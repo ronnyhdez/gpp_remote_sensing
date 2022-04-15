@@ -208,10 +208,10 @@ precipitation %>%
 ### Metereological variables
 
 From the site, there is instrumentation to measure environmental variables such
-as Vapor Pressure Deficit (VPA), Air Temperature (TA), Latent Heat (LH) and
-relative humidity (RH). In order to explore these variables, I plotted them with
-box plots to check the variability outliers and patterns per month, across all
-the time range available (May 2013 to May 2017).
+as Vapor Pressure Deficit (VPA), Air Temperature (TA), Latent Heat (LH), 
+relative humidity (RH) and Soil Water Content (SWC). In order to explore these 
+variables, I plotted them with box plots to check the variability outliers and 
+patterns per month, across all the time range available (May 2013 to May 2017).
 
 ```{r fig.cap = "Seasonal pattern of environmental variables at Santa Rosa National Park. Yellow background denotes the year with less precipitation", layout="l-body-outset", fig.height = 9}
 
