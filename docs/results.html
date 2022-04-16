@@ -2190,7 +2190,7 @@ Figure 1: Relation between NDVI and EVI indices derived from MODIS with GPP esti
 <ul>
 <li>The effect of NDVI is statistically significant and positive (beta = 1.66, 95% CI [1.38, 1.94], t(28) = 12.34, p &lt; .001; Std. beta = 0.92, 95% CI [0.77, 1.07])</li>
 </ul>
-<p>A second linear model was fitted (estimated using OLS) to predict in-situ GPP with MODIS EVI product (formula: GPP in-situ ~ EVI) as shown in Figure 1.B. The model explains a statistically significant and substantial proportion of variance (R2 = 0.79, F(1, 28) = 102.72, p &lt; .001, adj. R2 = 0.78). The model’s intercept, corresponding to EVI = 0, is at -0.40 (95% CI [-0.58, -0.22], t(28) = -4.61, p &lt; .001). Within this model:</p>
+<p>A second linear model was fitted (estimated using OLS) to predict in-situ GPP with MODIS EVI product (formula: GPP in-situ ~ EVI) as shown in Figure 1.B. The model explains a statistically significant and substantial proportion of variance (R2 = 0.79, F(1, 28) = 102.72, p &lt; .001, adj. R2 = 0.78). The model’s intercept, corresponding to EVI = 0, isat -0.40 (95% CI [-0.58, -0.22], t(28) = -4.61, p &lt; .001). Within this model:</p>
 <ul>
 <li>The effect of EVI is statistically significant and positive (beta = 1.95, 95% CI [1.56, 2.35], t(28) = 10.14, p &lt; .001; Std. beta = 0.89, 95% CI [0.71, 1.07])</li>
 </ul>
@@ -2438,6 +2438,7 @@ Show code
 </div>
 </details>
 </div>
+<h4 id="direct-gradient-analysis">Direct gradient analysis</h4>
 <div class="layout-chunk" data-layout="l-body-outset">
 <details>
 <summary>
@@ -2476,6 +2477,31 @@ Show code
 </div>
 </details>
 </div>
+<p>The scores for this analysis are:</p>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>vectors2</span>
+</code></pre>
+</div>
+</details>
+<pre><code>
+***VECTORS
+
+                 MDS1      MDS2     r2 Pr(&gt;r)    
+gpp_in_situ -0.988600  0.150597 0.9068  0.001 ***
+gpp_modis   -0.999930 -0.011973 0.5689  0.001 ***
+ndvi        -0.991290  0.131679 0.7767  0.001 ***
+evi         -0.960090  0.279703 0.6984  0.001 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+Permutation: free
+Number of permutations: 999</code></pre>
+</div>
+<h4 id="indirect-gradient-analysis">Indirect gradient analysis</h4>
 <div class="layout-chunk" data-layout="l-body-outset">
 <details>
 <summary>
@@ -2491,24 +2517,52 @@ Show code
 </code></pre>
 </div>
 </details>
-<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-8"></span>
-<img src="results_files/figure-html5/unnamed-chunk-8-1.png" alt="Indirect gradient analysis" width="624" />
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-9"></span>
+<img src="results_files/figure-html5/unnamed-chunk-9-1.png" alt="Indirect gradient analysis" width="624" />
 <p class="caption">
 Figure 5: Indirect gradient analysis
 </p>
 </div>
 </div>
+<p>The scores for this analysis are:</p>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>vectors4</span>
+</code></pre>
+</div>
+</details>
+<pre><code>
+***VECTORS
+
+                 MDS1     MDS2     r2 Pr(&gt;r)    
+par_incoming -0.77653  0.63008 0.0013  0.950    
+swc          -0.89131 -0.45339 0.7438  0.001 ***
+vpd           0.98719  0.15957 0.9103  0.001 ***
+r_h          -0.97179 -0.23586 0.8653  0.001 ***
+tair          0.97329  0.22957 0.5309  0.001 ***
+le           -0.67181 -0.74073 0.7671  0.001 ***
+h            -0.80515  0.59307 0.0743  0.434    
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+Permutation: free
+Number of permutations: 999</code></pre>
+</div>
 <h2 id="conclusions">Conclusions</h2>
 <ul>
-<li>MODIS NDVI product have a better relation with GPP estimated in-situ than EVI</li>
-<li></li>
-<li>bli</li>
+<li>Given data constrains (4 years of data from a single point) no further analysis could be done. Nonetheless, climate variables relations with driest months can indicate an influence on the estimations of GPP through MODIS products</li>
+<li>MODIS NDVI product have a better relation with GPP estimated in-situ than EVI MODIS product</li>
+<li>GPP derived from MODIS does not follow the seasonal patterns of GPP estimated in-situ.</li>
+<li>Soil water content, relative humidity and latent heat are more associated with months with higher precipitation and MODIS products.</li>
 </ul>
 <h2 id="references">References</h2>
 <blockquote>
 <p>James, G., Witten, D., Hastie, T., &amp; Tibshirani, R. (2013). An introduction to statistical learning (Vol. 112, p. 18). New York: springer.</p>
 </blockquote>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>

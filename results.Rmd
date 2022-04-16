@@ -235,9 +235,11 @@ p \< .001). Within this model:
     [0.77, 1.07])
 
 A second linear model was fitted (estimated using OLS) to predict in-situ GPP 
-with MODIS EVI product (formula: GPP in-situ ~ EVI) as shown in Figure 1.B. The model explains a statistically significant and substantial proportion of variance (R2 = 0.79, F(1, 28) = 102.72,
-p < .001, adj. R2 = 0.78). The model's intercept, corresponding to EVI = 0, is 
-at -0.40 (95% CI [-0.58, -0.22], t(28) = -4.61, p < .001). Within this model:
+with MODIS EVI product (formula: GPP in-situ ~ EVI) as shown in Figure 1.B. The 
+model explains a statistically significant and substantial proportion of variance 
+(R2 = 0.79, F(1, 28) = 102.72, p < .001, adj. R2 = 0.78). The model's intercept, 
+corresponding to EVI = 0, isat -0.40 (95% CI [-0.58, -0.22], t(28) = -4.61, 
+p < .001). Within this model:
 
   - The effect of EVI is statistically significant and positive (beta = 1.95, 
   95% CI [1.56, 2.35], t(28) = 10.14, p < .001; Std. beta = 0.89, 
@@ -469,6 +471,7 @@ out1 <-  metaMDS(sed, k = 2, trymax = 500)
 scores1 <-  out1$points # generate scores
 ```
 
+#### Direct gradient analysis
 
 ```{r fig.cap = "Direct gradient analysis", layout="l-body-outset", fig.height = 7}
 # Plot ordination variables %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -482,13 +485,19 @@ vectors2 = envfit(scores1, indices, nperm = 999)
 plot(vectors2, col = "blue")
 ```
 
-
 ```{r, results = FALSE}
 dm2 <- distance(indices, "euclidean")
 out2 <- metaMDS(dm2, k = 2, trymax = 500)
 scores2 <- out2$points # generate scores
 ```
 
+The scores for this analysis are:
+
+```{r}
+vectors2
+```
+
+#### Indirect gradient analysis
 
 ```{r fig.cap = "Indirect gradient analysis", layout="l-body-outset", fig.height = 7}
 plot(scores2, col = "white")
@@ -499,11 +508,24 @@ vectors4 <- envfit(scores2, meteo, nperm = 999)
 plot(vectors4, len = 0.1, col = "blue")
 ```
 
+The scores for this analysis are:
+
+```{r}
+vectors4
+```
+
 ## Conclusions
 
- - MODIS NDVI product have a better relation with GPP estimated in-situ than EVI 
- - 
- - bli
+ - Given data constrains (4 years of data from a single point) no further 
+ analysis could be done. Nonetheless, climate variables relations with driest
+ months can indicate an influence on the estimations of GPP through MODIS
+ products
+ - MODIS NDVI product have a better relation with GPP estimated in-situ than EVI
+ MODIS product
+ - GPP derived from MODIS does not follow the seasonal patterns of GPP estimated
+ in-situ.
+ - Soil water content, relative humidity and latent heat are more associated with
+ months with higher precipitation and MODIS products.
 
 
 ## References
