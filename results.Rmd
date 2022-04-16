@@ -29,6 +29,8 @@ library(rmarkdown)
 library(tidymodels)
 library(report)
 library(cowplot)
+library(ecodist)
+library(vegan)
 
 # Import data sets
 precipitation <- 
@@ -233,9 +235,11 @@ p \< .001). Within this model:
     [0.77, 1.07])
 
 A second linear model was fitted (estimated using OLS) to predict in-situ GPP 
-with MODIS EVI product (formula: GPP in-situ ~ EVI) as shown in Figure 1.B. The model explains a statistically significant and substantial proportion of variance (R2 = 0.79, F(1, 28) = 102.72,
-p < .001, adj. R2 = 0.78). The model's intercept, corresponding to EVI = 0, is 
-at -0.40 (95% CI [-0.58, -0.22], t(28) = -4.61, p < .001). Within this model:
+with MODIS EVI product (formula: GPP in-situ ~ EVI) as shown in Figure 1.B. The 
+model explains a statistically significant and substantial proportion of variance 
+(R2 = 0.79, F(1, 28) = 102.72, p < .001, adj. R2 = 0.78). The model's intercept, 
+corresponding to EVI = 0, isat -0.40 (95% CI [-0.58, -0.22], t(28) = -4.61, 
+p < .001). Within this model:
 
   - The effect of EVI is statistically significant and positive (beta = 1.95, 
   95% CI [1.56, 2.35], t(28) = 10.14, p < .001; Std. beta = 0.89, 
@@ -339,10 +343,17 @@ with meteorological values per month.
  - Do we have meteorological characteristics that are related to larger or 
  shorter residuals values?
 
-In order to check this, a quadratic function was applied to residuals values so
-no negative values were in the data set.
+```{r fig.cap = "Correlation between the NDVI and EVI residuals with meteorological variables"}
+# NDVI BIOMET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+observations_ndvi_residuals <- ndvi_observations_residuals %>% 
+  select(month_year, residuals) %>% 
+  rename(ndvi_residuals = residuals)
 
-```{r}
+# EVI BIOMET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+observations_evi_residuals <- evi_observations_residuals %>% 
+  select(month_year, residuals) %>% 
+  rename(evi_residuals = residuals)
+
 # Summarise biomet %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 biomet_summarized <- biomet %>% 
   group_by(zoo::as.yearmon(date)) %>% 
@@ -357,172 +368,165 @@ biomet_summarized <- biomet %>%
   ) %>% 
   rename(month_year = `zoo::as.yearmon(date)`)
 
-# NDVI BIOMET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-## Table with months with higher residuals
-## Cuadratic formula to eliminate negative values
-observations_residuals <- ndvi_observations_residuals %>% 
-  mutate(positive_residuals = residuals ^ 2,
-         positive_residuals = round(positive_residuals, digits = 3)) %>% 
-  select(month_year, positive_residuals, residuals) %>% 
-  arrange(desc(positive_residuals))
+precipitation_summarized <- precipitation %>% 
+  mutate(month_year = zoo::as.yearmon(date)) %>% 
+  group_by(month_year) %>% 
+  summarize(
+    total_precip = sum(precip, na.rm = TRUE)
+  )
 
-ndvi_biomet <- observations_residuals %>% 
+# Join datasets %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+residuals_biomet <- observations_ndvi_residuals %>% 
+  left_join(observations_evi_residuals, by = "month_year") %>% 
   left_join(biomet_summarized, by = "month_year") %>% 
-  select(-month_year, -positive_residuals) 
+  left_join(precipitation_summarized, by = "month_year") %>% 
+  select(-month_year) 
 
-# library(PerformanceAnalytics)
-# chart.Correlation(check, histogram = TRUE, method = "pearson")
-## Los residuales comparados parecen solo relacionarse con LE.
+tmwr_cols <- colorRampPalette(c("#91CBD765", "#CA225E"))
 
-# EVI BIOMET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-## Table with months with higher residuals
-## Cuadratic formula to eliminate negative values
-observations_residuals <- evi_observations_residuals %>% 
-  mutate(positive_residuals = residuals ^ 2,
-         positive_residuals = round(positive_residuals, digits = 3)) %>% 
-  select(month_year, positive_residuals, residuals) %>% 
-  arrange(desc(positive_residuals))
-
-## Take biomet variables to validate if there is a similar pattern:
-# biomet_summarized is already a created object.
-evi_biomet <- observations_residuals %>% 
-  left_join(biomet_summarized, by = "month_year") %>% 
-  select(-month_year, -positive_residuals) 
-
-## Exploratory PCA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# For EVI
-biomet_pca <- evi_biomet %>% 
-  # mutate(month_year = as.character(month_year)) %>% 
-  # select(-date, -year, -do_y, -hour) %>% 
+residuals_biomet %>% 
   drop_na() %>% 
-  princomp(cor = T)
-
-biplot(biomet_pca)
-
-# For NDVI
-biomet_pca <- ndvi_biomet %>% 
-  drop_na() %>% 
-  princomp(cor = T)
-
-biplot(biomet_pca)
-
-# library(PerformanceAnalytics)
-# chart.Correlation(evi_biomet, histogram = TRUE, method = "pearson")
-## Los residuales comparados parecen solo relacionarse con LE (igual que NDVI)
+  cor() %>% 
+  corrplot(col = tmwr_cols(200), tl.col = "black")
 ```
 
-### Which meteorological variable have more influence in GPP in-situ?
+ - There is no a clear correlation between residuals (from NDVI and EVI) with
+ the meteorological variables, other than Latent Heat (`le`), and total 
+ precipitation per month (`total_precip`)
 
-```{r}
-
-```
-
-
-### PCA for meteorological variables
-
-TODO: Implement nice PCA plot!!!
-
-```{r}
-# nrow(biomet)
-# biomet %>% drop_na() %>% nrow()
-biomet_pca <- biomet %>% 
-  select(-date, -year, -do_y, -hour) %>% 
-  drop_na() %>% 
-  princomp(cor = T)
-
+```{r fig.cap = "Check PCA"}
+# # For EVI
+# biomet_pca <- residuals_biomet %>%
+#   select(-ndvi_residuals) %>%
+#   drop_na() %>%
+#   princomp(cor = T)
+# 
+# biplot(biomet_pca)
+# 
+# # For NDVI
+# biomet_pca <- residuals_biomet %>%
+#   select(-evi_residuals) %>%
+#   drop_na() %>%
+#   princomp(cor = T)
+# 
 # biplot(biomet_pca)
 ```
 
 ### Gradient analysis
 
-```{r}
+In order to know which meteorological variables have more influences in the
+values of GPP (in-situ and MODIS) and indices, a gradient analysis (direct and
+indirect) was performed. Mean values for each month were calculated and those
+months which had no value in one of the variables were filtered out, resulting
+in a total of 26 observations (available months with complete values) for all
+the time period in this research.
 
-```
+```{r results = FALSE}
+# biomet_summarized contains the meteorological variables per month
+# modis_indices_clean
+# modis_gpp_clean
 
-#### Regression trees
+# Unite MODIS products per month and year %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+modis_gpp_month <- modis_gpp_clean %>% 
+  group_by(zoo::as.yearmon(date)) %>% 
+  summarise(
+    gpp = mean(gpp, na.rm = TRUE)
+  ) %>% 
+  rename(date = `zoo::as.yearmon(date)`)
 
-This section is still a **Work In Progress**. The objective is to apply a
-regression Random Forest using the meteorological variables as predictors of
-GPP. After the evaluation of the predictions also a variable importance analysis
-will be run.
+modis_indices_month <- modis_indices_clean %>% 
+  group_by(zoo::as.yearmon(date)) %>% 
+  summarise(
+    ndvi = mean(ndvi, na.rm = TRUE),
+    evi = mean(evi, na.rm = TRUE)
+  ) %>% 
+  rename(date = `zoo::as.yearmon(date)`)
 
-Given that GPP observations are monthly, this reduces the total amount of
-observations available, so bootstrapping is applied to the regression random
-forest.
+modis_means <- modis_gpp_month %>% 
+  full_join(modis_indices_month, by = "date")
 
-```{r}
-ndvi_summarized <- ndvi_moha %>% 
-  mutate(year_mon = zoo::as.yearmon(date)) %>% 
-  group_by(year_mon) %>% 
-  summarize(
-    ndvi_mean = mean(ndvi, na.rm = TRUE),
-    ndvi_sd = sd(ndvi, na.rm = TRUE)
-  )
+# Unite MODIS products with gpp in situ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+in_situ_gpp <- monthly_gpp %>% 
+  mutate(date = zoo::as.yearmon(date)) %>% 
+  select(date, average_gpp) %>% 
+  rename(gpp_in_situ = average_gpp)
 
-biomet_summarized <- biomet %>% 
-  mutate(year_mon = zoo::as.yearmon(date)) %>% 
-  group_by(year_mon) %>% 
-  summarize(
-    # sd_par_incoming = sd(par_incoming, na.rm = TRUE), 
-    # sd_swc          = sd(swc, na.rm = TRUE), 
-    # sd_vpd          = sd(vpd, na.rm = TRUE), 
-    # sd_r_h          = sd(r_h, na.rm = TRUE), 
-    # sd_tair         = sd(tair, na.rm = TRUE), 
-    # sd_nee          = sd(nee, na.rm = TRUE), 
-    # sd_le           = sd(le, na.rm = TRUE), 
-    # sd_h            = sd(h, na.rm = TRUE),
-    mean_par_incoming = sd(par_incoming, na.rm = TRUE), 
-    mean_swc          = sd(swc, na.rm = TRUE), 
-    mean_vpd          = sd(vpd, na.rm = TRUE), 
-    mean_r_h          = sd(r_h, na.rm = TRUE), 
-    mean_tair         = sd(tair, na.rm = TRUE), 
-    # mean_nee          = sd(nee, na.rm = TRUE), 
-    mean_le           = sd(le, na.rm = TRUE), 
-    mean_h            = sd(h, na.rm = TRUE)
-  )
-
-summarize_dataset <- monthly_gpp %>% 
-  mutate(year_mon = zoo::as.yearmon(date)) %>% 
-  inner_join(ndvi_summarized) %>% 
-  inner_join(biomet_summarized) %>% 
+full_gpp <- in_situ_gpp %>% 
+  full_join(modis_means) %>% 
+  rename(gpp_modis = gpp,
+         month_year = date) %>% 
+  full_join(biomet_summarized) %>% 
   drop_na()
 
-set.seed(123)
-gpp_split <- initial_split(summarize_dataset)
-gpp_train <- training(gpp_split)
-gpp_test <- testing(gpp_split)
+# Prepare data for gradient analysis %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+rownames(full_gpp) = full_gpp$month_year
+month_labels = as.factor(full_gpp$month_year)
 
-set.seed(123)
-gpp_boot <- bootstraps(gpp_train)
-gpp_boot
+indices <- full_gpp[ , 2:5]
+meteo <- full_gpp[ , 6:12]
 
-rf_spec <- rand_forest() %>%
-  set_mode("regression") %>%
-  set_engine("ranger")
+# NDMS execution %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+sed <-  distance(scale(meteo), "euclidean")
+out1 <-  metaMDS(sed, k = 2, trymax = 500)
+scores1 <-  out1$points # generate scores
+```
 
-rf_spec
+#### Direct gradient analysis
 
-gpp_wf <- workflow() %>%
-  add_formula(average_gpp ~ .)
+```{r fig.cap = "Direct gradient analysis", layout="l-body-outset", fig.height = 7}
+# Plot ordination variables %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+plot(scores1, col = "white")
+text(scores1, labels = month_labels)
+vectors1 = envfit(scores1, meteo, nperm = 0)
+plot(vectors1, col = "red")
 
-gpp_wf
+# Adding new vectors %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+vectors2 = envfit(scores1, indices, nperm = 999)
+plot(vectors2, col = "blue")
+```
 
+```{r, results = FALSE}
+dm2 <- distance(indices, "euclidean")
+out2 <- metaMDS(dm2, k = 2, trymax = 500)
+scores2 <- out2$points # generate scores
+```
 
-rf_rs <- gpp_wf %>%
-  add_model(rf_spec) %>%
-  fit_resamples(
-    resamples = gpp_boot,
-    control = control_resamples(save_pred = TRUE)
-  )
+The scores for this analysis are:
 
-rf_rs
+```{r}
+vectors2
+```
 
+#### Indirect gradient analysis
 
-## Evaluate model
-collect_metrics(rf_rs)
+```{r fig.cap = "Indirect gradient analysis", layout="l-body-outset", fig.height = 7}
+plot(scores2, col = "white")
+text(scores2, labels = month_labels)
+vectors3 <- envfit(scores2, indices, nperm = 0)
+plot(vectors3, len = 0.1, col = "red")
+vectors4 <- envfit(scores2, meteo, nperm = 999)
+plot(vectors4, len = 0.1, col = "blue")
+```
+
+The scores for this analysis are:
+
+```{r}
+vectors4
 ```
 
 ## Conclusions
+
+ - Given data constrains (4 years of data from a single point) no further 
+ analysis could be done. Nonetheless, climate variables relations with driest
+ months can indicate an influence on the estimations of GPP through MODIS
+ products
+ - MODIS NDVI product have a better relation with GPP estimated in-situ than EVI
+ MODIS product
+ - GPP derived from MODIS does not follow the seasonal patterns of GPP estimated
+ in-situ.
+ - Soil water content, relative humidity and latent heat are more associated with
+ months with higher precipitation and MODIS products.
+
 
 ## References
 

@@ -51,11 +51,17 @@ Resolution Imaging Spectroradiometer (MODIS) with GPP estimations obtained throu
 Eddy Covariance technique in a tropical dry forest in Santa Rosa National Park,
 Costa Rica.
 
-Trends of GPP obtained from MODIS variate with trends of GPP obtained in-situ
-for the period from 2013 to 2016. Meteorological variables can influence the
-photosynthetic response without affecting at early stages of the dry season the
-canopy structure, which cannot be capture by spectral data.
-
+Trends of GPP obtained from MODIS did not match the patterns and seasonality of
+GPP estimated in-situ. Results of regression between NDVI derived from MODIS and
+GPP estimated in situ was statiscally significant (R2 = 0.84, F(1, 28) = 152.26,
+p \< .001, adj. R2 = 0.84) and higher than the linear model between EVI derived 
+from MODIS and GPP estimated in-situ (R2 = 0.79, F(1, 28) = 102.72, p < .001, 
+adj. R2 = 0.78). Residuals derived from both linear regression did not show any
+pattern within the months available for the study. A direct gradient analysis
+showed that the driest months were related more with air temperature and
+vapour presure deficit. GPP, EVI and NDVI derived from MODIS were more 
+influenced by relative humidity, latent heat and soil water content in months
+with higher values of precipitation.
 
 <!-- Visual Elements – Use a photo or another visual element that represents your  -->
 <!-- research topic. -->
@@ -63,3 +69,7 @@ canopy structure, which cannot be capture by spectral data.
 ```{r fig.cap = "View from the Flux Tower in Santa Rosa National Park, Costa Rica", out.extra = "class=external", layout="l-body-outset"}
 knitr::include_graphics("img/IMG-20190908-WA0049.jpg")
 ```
+
+
+ > I'm Ronny Hernández Mora, a MSc student at the Earth and Atmospheric department
+ of the University of Alberta, Canada.

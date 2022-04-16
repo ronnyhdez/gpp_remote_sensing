@@ -13,6 +13,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
+## Libraries
 library(leaflet)
 ```
 
@@ -26,21 +27,65 @@ library(leaflet)
 
 ## Data
 
+### Santa Rosa National Park
+
 Data collected comes from an Eddy covariance system and a meteorological station
-that has been monitoring the site since from 2013. Data processed for this research
-is available up to December 2016 from [environet data portal](https://www.enviro-net.org/).
-During this period, El Niño-Southern Oscillation was experimented which reduced 
-the precipitation for 2014 and 2015. (Castro _et al._ 2018)
+that has been monitoring on the site since from 2013. Data used in this research
+have been published on the [Hardvard Dataverse repository](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/P1PTYB). 
+
+During the period of analysis (from 2013 to 2017) El Niño-Southern Oscillation 
+was experimented, with an impact of reducing the precipitation for 2014 and 
+2015. (Castro _et al._ 2018).
+
+GPP values for the site are available at monthly basis (mean oer month). GPP
+estimation was done using a light-response curve (Castro _et al._ 2018) Also, 
+environmental values from the site that were used for this research are: 
+
+ - Vapor Pressure Deficit (VPA)
+ - Air Temperature (TA)
+ - Latent Heat (LH)
+ - Relative humidity (RH)
+ - Soil Water Content (SWC).
+
+These data files are shown and explained in the 
+[Data Exploration](https://ronnyhdez.github.io/gpp_remote_sensing/eda.html#srnp-data-exploration)
+section.
+
+### Satellite data
 
 The second source of data was the satellite derived products from Moderate 
-Resolution Imaging Spectroradiometer (MODIS) (Didan, K. 2015) obtained using 
-the Application for Extracting and Exploring Analysis Ready Samples (AρρEEARS) 
-(AppEEARS Team. 2022). A pixel that matched the tower position was selected which
-have an spatial resolution of 500 m.
+Resolution Imaging Spectroradiometer (MODIS) (Didan, K. 2015). Specifically
+the MODIS/Terra Gross Primary Productivity 8-Day L4 (MYD17A2H-006) product was
+used for GPP values and the MODIS/Terra Vegetation Indices 16-Day L3 (MOD13Q1-006)
+to obtain NDVI and EVI values. A pixel that matched the flux tower position in 
+Santa Rosa National Park was selected to ensure that the flux footprint 
+climatology lies within this area.
 
-For models, all outliers were remove with the interquartile method assuming that values
-that have an interquartile range 1.5 greater than the third quartile or 1.5 
-less than the first quartile can be due to sensor errors. MODIS data was 
+## Analysis
+
+I want to validate remotely sensed estimates of GPP. Given the datasets available
+for  this research, the following  diagram summarises the relations, steps, and
+questions to achieve this:
+
+```{r fig.cap = "Diagram of data sets origin, their relations and questions to answer.", out.extra = "class=external", layout="l-body-outset"}
+knitr::include_graphics("img/analysis_summary.png")
+```
+
+As part of the exploratory analysis, all the environmental variables are plotted
+through time to understand the seasonal patterns on the site along with the
+GPP estimated in-situ, and the MODIS products (GPP, NDVI, and EVI)
+
+An exploratory correlation was performed with `GPP ~ NDVI` and `GPP ~ EVI` values
+from MODIS products to validate if there was a strong or weak relation between
+these variables.
+
+Then a comparison plot between GPP in-situ and GPP from MODIS through all the
+time period was created to visually validate if the patterns were close or if
+the values differed.
+
+For models, all outliers were remove with the interquartile method assuming that
+values that have an interquartile range 1.5 greater than the third quartile or 
+1.5 less than the first quartile can be due to sensor errors. MODIS data was 
 filtered to remove bad data quality points when flagged as such.
 
 For more detail on the datasets please check the [data exploration section](https://ronnyhdez.github.io/gpp_remote_sensing/eda.html)
@@ -54,7 +99,7 @@ For more detail on the datasets please check the [data exploration section](http
 
 ## Site
 
-The flux site is located northwest of Costa Rica, within the Santa Rosa National Park Environmental Super Site in Guanacaste. The site has plateaus from 300 masl and is composed of tropical dry forest in several stages of successional regeneration with an average height of 13 m. (Castro et al.,2018) Half of the species in the site are deciduous, with an average annual temperature of 25 °C and the total annual precipitation is between 700 and 2000 mm, with a dry season of 4 to 5 months where precipitation is less than 100 mm per month or even 0 mm (Sánchez-Azofeifa et al., 2005). This site was a cattle ranch for 200 years until 1970 when it was declared as a National Park (Janzen 2000) and from there a regeneration process of the forest have been going on until nowadays where we find a secondary tropical dry forest with diverse vegetation types and three stages of ecological succession: early, intermediate and late. (Kalacska et al., 2004; Cao & Sanchez-Azofeifa 2017) 
+The flux site is located northwest of Costa Rica, within the Santa Rosa National Park Environmental Super Site in Guanacaste. The site has plateaus from 300 masl and is composed of tropical dry forest in several stages of successional regeneration with an average height of 13 m. (Castro _et al._, 2018) Half of the species in the site are deciduous, with an average annual temperature of 25 °C and the total annual precipitation is between 700 and 2000 mm, with a dry season of 4 to 5 months where precipitation is less than 100 mm per month or even 0 mm (Sánchez-Azofeifa _et al._, 2005). This site was a cattle ranch for 200 years until 1970 when it was declared as a National Park (Janzen 2000) and from there a regeneration process of the forest have been going on until nowadays where we find a secondary tropical dry forest with diverse vegetation types and three stages of ecological succession: early, intermediate and late. (Kalacska _et al._, 2004; Cao & Sanchez-Azofeifa 2017) 
 
 ```{r}
 sr_map <- leaflet() %>%

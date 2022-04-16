@@ -2103,7 +2103,12 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <nav class="l-text toc figcaption" id="TOC">
 <h3>Contents</h3>
 <ul>
-<li><a href="#data">Data</a></li>
+<li><a href="#data">Data</a>
+<ul>
+<li><a href="#santa-rosa-national-park">Santa Rosa National Park</a></li>
+<li><a href="#satellite-data">Satellite data</a></li>
+</ul></li>
+<li><a href="#analysis">Analysis</a></li>
 <li><a href="#site">Site</a></li>
 <li><a href="#references">References</a></li>
 </ul>
@@ -2116,8 +2121,42 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!-- actually analyze as part of this course project, not other things you have done  -->
 <!-- as part of your thesis! -->
 <h2 id="data">Data</h2>
-<p>Data collected comes from an Eddy covariance system and a meteorological station that has been monitoring the site since from 2013. Data processed for this research is available up to December 2016 from <a href="https://www.enviro-net.org/">environet data portal</a>. During this period, El Niño-Southern Oscillation was experimented which reduced the precipitation for 2014 and 2015. (Castro <em>et al.</em> 2018)</p>
-<p>The second source of data was the satellite derived products from Moderate Resolution Imaging Spectroradiometer (MODIS) (Didan, K. 2015) obtained using the Application for Extracting and Exploring Analysis Ready Samples (AρρEEARS) (AppEEARS Team. 2022). A pixel that matched the tower position was selected which have an spatial resolution of 500 m.</p>
+<h3 id="santa-rosa-national-park">Santa Rosa National Park</h3>
+<p>Data collected comes from an Eddy covariance system and a meteorological station that has been monitoring on the site since from 2013. Data used in this research have been published on the <a href="https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/P1PTYB">Hardvard Dataverse repository</a>.</p>
+<p>During the period of analysis (from 2013 to 2017) El Niño-Southern Oscillation was experimented, with an impact of reducing the precipitation for 2014 and 2015. (Castro <em>et al.</em> 2018).</p>
+<p>GPP values for the site are available at monthly basis (mean oer month). GPP estimation was done using a light-response curve (Castro <em>et al.</em> 2018) Also, environmental values from the site that were used for this research are:</p>
+<ul>
+<li>Vapor Pressure Deficit (VPA)</li>
+<li>Air Temperature (TA)</li>
+<li>Latent Heat (LH)</li>
+<li>Relative humidity (RH)</li>
+<li>Soil Water Content (SWC).</li>
+</ul>
+<p>These data files are shown and explained in the <a href="https://ronnyhdez.github.io/gpp_remote_sensing/eda.html#srnp-data-exploration">Data Exploration</a> section.</p>
+<h3 id="satellite-data">Satellite data</h3>
+<p>The second source of data was the satellite derived products from Moderate Resolution Imaging Spectroradiometer (MODIS) (Didan, K. 2015). Specifically the MODIS/Terra Gross Primary Productivity 8-Day L4 (MYD17A2H-006) product was used for GPP values and the MODIS/Terra Vegetation Indices 16-Day L3 (MOD13Q1-006) to obtain NDVI and EVI values. A pixel that matched the flux tower position in Santa Rosa National Park was selected to ensure that the flux footprint climatology lies within this area.</p>
+<h2 id="analysis">Analysis</h2>
+<p>I want to validate remotely sensed estimates of GPP. Given the datasets available for this research, the following diagram summarises the relations, steps, and questions to achieve this:</p>
+<div class="layout-chunk" data-layout="l-body-outset">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'>knitr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span><span class='op'>(</span><span class='st'>"img/analysis_summary.png"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-1"></span>
+<img src="img/analysis_summary.png" alt="Diagram of data sets origin, their relations and questions to answer." width="480" class=external />
+<p class="caption">
+Figure 1: Diagram of data sets origin, their relations and questions to answer.
+</p>
+</div>
+</div>
+<p>As part of the exploratory analysis, all the environmental variables are plotted through time to understand the seasonal patterns on the site along with the GPP estimated in-situ, and the MODIS products (GPP, NDVI, and EVI)</p>
+<p>An exploratory correlation was performed with <code>GPP ~ NDVI</code> and <code>GPP ~ EVI</code> values from MODIS products to validate if there was a strong or weak relation between these variables.</p>
+<p>Then a comparison plot between GPP in-situ and GPP from MODIS through all the time period was created to visually validate if the patterns were close or if the values differed.</p>
 <p>For models, all outliers were remove with the interquartile method assuming that values that have an interquartile range 1.5 greater than the third quartile or 1.5 less than the first quartile can be due to sensor errors. MODIS data was filtered to remove bad data quality points when flagged as such.</p>
 <p>For more detail on the datasets please check the <a href="https://ronnyhdez.github.io/gpp_remote_sensing/eda.html">data exploration section</a></p>
 <!-- Visual Elements – These are probably most important in this section to keep your -->
@@ -2127,7 +2166,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!-- within reps. Ground or aerial photos of your field sites with diagrams drawn on  -->
 <!-- top of them in PowerPoint can be very effective. -->
 <h2 id="site">Site</h2>
-<p>The flux site is located northwest of Costa Rica, within the Santa Rosa National Park Environmental Super Site in Guanacaste. The site has plateaus from 300 masl and is composed of tropical dry forest in several stages of successional regeneration with an average height of 13 m. (Castro et al.,2018) Half of the species in the site are deciduous, with an average annual temperature of 25 °C and the total annual precipitation is between 700 and 2000 mm, with a dry season of 4 to 5 months where precipitation is less than 100 mm per month or even 0 mm (Sánchez-Azofeifa et al., 2005). This site was a cattle ranch for 200 years until 1970 when it was declared as a National Park (Janzen 2000) and from there a regeneration process of the forest have been going on until nowadays where we find a secondary tropical dry forest with diverse vegetation types and three stages of ecological succession: early, intermediate and late. (Kalacska et al., 2004; Cao &amp; Sanchez-Azofeifa 2017)</p>
+<p>The flux site is located northwest of Costa Rica, within the Santa Rosa National Park Environmental Super Site in Guanacaste. The site has plateaus from 300 masl and is composed of tropical dry forest in several stages of successional regeneration with an average height of 13 m. (Castro <em>et al.</em>, 2018) Half of the species in the site are deciduous, with an average annual temperature of 25 °C and the total annual precipitation is between 700 and 2000 mm, with a dry season of 4 to 5 months where precipitation is less than 100 mm per month or even 0 mm (Sánchez-Azofeifa <em>et al.</em>, 2005). This site was a cattle ranch for 200 years until 1970 when it was declared as a National Park (Janzen 2000) and from there a regeneration process of the forest have been going on until nowadays where we find a secondary tropical dry forest with diverse vegetation types and three stages of ecological succession: early, intermediate and late. (Kalacska <em>et al.</em>, 2004; Cao &amp; Sanchez-Azofeifa 2017)</p>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
@@ -2144,8 +2183,8 @@ Show code
 </code></pre>
 </div>
 </details>
-<div id="htmlwidget-520f37824b41ebca75ef" style="width:624px;height:384px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-520f37824b41ebca75ef">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addMarkers","args":[10.8529,-85.6288,null,null,null,{"interactive":true,"draggable":false,"keyboard":true,"title":"","alt":"","zIndexOffset":0,"opacity":1,"riseOnHover":false,"riseOffset":250},"Carbon Flux Tower at Santa Rosa National Park",null,null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"setView":[[10.8529,-85.6288],10,[]],"limits":{"lat":[10.8529,10.8529],"lng":[-85.6288,-85.6288]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-7a7a138d728e99bb323a" style="width:624px;height:384px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-7a7a138d728e99bb323a">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addMarkers","args":[10.8529,-85.6288,null,null,null,{"interactive":true,"draggable":false,"keyboard":true,"title":"","alt":"","zIndexOffset":0,"opacity":1,"riseOnHover":false,"riseOffset":250},"Carbon Flux Tower at Santa Rosa National Park",null,null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"setView":[[10.8529,-85.6288],10,[]],"limits":{"lat":[10.8529,10.8529],"lng":[-85.6288,-85.6288]}},"evals":[],"jsHooks":[]}</script>
 </div>
 <h2 id="references">References</h2>
 <blockquote>
