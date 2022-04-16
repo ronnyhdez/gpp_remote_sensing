@@ -63,3 +63,7 @@ canopy structure, which cannot be capture by spectral data.
 ```{r fig.cap = "View from the Flux Tower in Santa Rosa National Park, Costa Rica", out.extra = "class=external", layout="l-body-outset"}
 knitr::include_graphics("img/IMG-20190908-WA0049.jpg")
 ```
+
+
+ > I'm Ronny Hernández Mora, a MSc student at the Earth and Atmospheric department
+ of the University of Alberta, Canada.

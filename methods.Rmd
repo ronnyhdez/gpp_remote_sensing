@@ -61,8 +61,6 @@ to obtain NDVI and EVI values. A pixel that matched the flux tower position in
 Santa Rosa National Park was selected to ensure that the flux footprint 
 climatology lies within this area.
 
-<!-- TODO: EXPLAIN GPP MODEL FROM MODIS AND INDICES CHARACTERISTICS -->
-
 ## Analysis
 
 I want to validate remotely sensed estimates of GPP. Given the datasets available
